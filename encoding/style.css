@@ -3,3 +3,79 @@
    only things unique to this page go here. */
 
 main { padding: 28px 0 60px; }
+
+/* ---------- Unicode tab: character-to-bytes groups ---------- */
+.unicode-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.u-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--bp-border);
+  background: var(--bp-panel-soft);
+  cursor: default;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.u-group.active {
+  border-color: var(--bp-highlight);
+  background: var(--bp-highlight-soft);
+}
+.u-glyph {
+  font-size: 1.3rem;
+  min-width: 1.6em;
+}
+.u-cp {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--bp-muted);
+}
+.u-bytes {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.u-bytes .unit {
+  font-size: 0.72rem;
+  padding: 2px 5px;
+}
+
+/* ---------- Huffman tab: tree diagram ---------- */
+.huffman-tree-wrap {
+  overflow-x: auto;
+  padding: 10px 0 4px;
+}
+.huffman-tree-svg { display: block; margin: 0 auto; }
+.huffman-tree-svg text {
+  font-family: var(--font-mono);
+  fill: var(--bp-text);
+}
+.tree-edge { stroke: var(--bp-border); stroke-width: 1.5; }
+.tree-edge-label { font-size: 10px; fill: var(--bp-accent); }
+.tree-circle { fill: var(--bp-panel); stroke: var(--bp-border); stroke-width: 1.5; }
+.tree-internal .tree-circle { fill: var(--bp-border); stroke: none; }
+/* Higher-specificity overrides so the shared .t2/.t3/.t4 fill rule
+   (meant for text/table cells) doesn't fight the circle's own fill —
+   here the tier shows as a colored ring instead. */
+.tree-circle.t2 { stroke: var(--bp-control); fill: var(--bp-panel); }
+.tree-circle.t3 { stroke: var(--bp-extended); fill: var(--bp-panel); }
+.tree-circle.t4 { stroke: var(--bp-outside); fill: var(--bp-panel); }
+.tree-symbol { font-size: 13px; font-weight: 600; fill: var(--bp-text-strong); }
+.tree-freq { font-size: 10px; fill: var(--bp-muted); }
+.tree-internal-freq { font-size: 9px; fill: var(--bp-muted); }
+
+.tree-node.tree-leaf { cursor: default; }
+.tree-node.tree-active .tree-circle {
+  stroke: var(--bp-highlight);
+  stroke-width: 3;
+  fill: var(--bp-highlight-soft);
+}
+.tree-node.tree-active .tree-symbol,
+.tree-node.tree-active .tree-freq {
+  fill: var(--bp-highlight);
+}

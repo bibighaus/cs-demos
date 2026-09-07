@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Text Encoding Explorer &mdash; ASCII</title>
-<meta name="description" content="An interactive demo showing how text is encoded as ASCII binary and hexadecimal.">
+<title>Text Encoding Explorer</title>
+<meta name="description" content="An interactive demo of ASCII, Unicode/UTF-8, and Huffman coding — how text becomes bits, and what that costs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
@@ -31,10 +31,10 @@
     ASCII
   </button>
   <button class="tab-btn" data-tab="unicode" role="tab" aria-selected="false" aria-controls="tab-unicode">
-    Unicode <span class="badge">Coming soon</span>
+    Unicode
   </button>
   <button class="tab-btn" data-tab="huffman" role="tab" aria-selected="false" aria-controls="tab-huffman">
-    Huffman Compression <span class="badge">Coming soon</span>
+    Huffman
   </button>
 </nav>
 
@@ -122,34 +122,196 @@
 
   </section>
 
-  <!-- ================= UNICODE TAB (placeholder) ================= -->
+  <!-- ================= UNICODE TAB ================= -->
   <section id="tab-unicode" class="tab-panel" role="tabpanel" aria-labelledby="unicode" hidden>
+
     <article class="intro card">
-      <h2>Unicode &mdash; coming soon</h2>
+      <h2>What's going on here?</h2>
       <p>
-        ASCII only covers 128 characters, which is nowhere near enough for the world's languages,
-        emoji, and symbols. <strong>Unicode</strong> solves this by assigning a unique
-        <em>code point</em> to every character in every writing system, and encodes those code
-        points using variable-width schemes like <strong>UTF-8</strong> and <strong>UTF-16</strong>.
+        ASCII only has 128 codes &mdash; nowhere near enough for the world's languages, symbols,
+        and emoji. <strong>Unicode</strong> solves this by giving every character in every
+        writing system its own number, called a <strong>code point</strong> (written
+        <code>U+0041</code> for "A"). There are over 1.1 million of them.
       </p>
-      <p>This tab will let you compare UTF-8 vs. UTF-16 byte layouts, see multi-byte sequences,
-        and explore why encoding mismatches are a common source of bugs and security issues.</p>
+      <p>
+        <strong>UTF-8</strong> is the encoding that turns a code point into actual bytes. It's
+        designed so plain English text still costs exactly what ASCII costs &mdash; 1 byte per
+        character &mdash; but every code point outside that range costs more: 2, 3, or 4 bytes.
+        Type something with accents, non-Latin scripts, or emoji below and watch the byte cost climb.
+      </p>
+      <ul class="takeaways">
+        <li><strong>The tradeoff:</strong> supporting every character on Earth means most
+          non-English, non-ASCII text takes up more space than plain ASCII &mdash; often
+          2&ndash;4&times; as much.</li>
+        <li><strong>Why it matters for security:</strong> visually identical characters from
+          different scripts (Cyrillic <code>&#1072;</code> vs. Latin <code>a</code>) have different
+          code points &mdash; a classic trick behind homoglyph phishing domains and lookalike usernames.</li>
+        <li><strong>Backward compatible:</strong> because UTF-8 encodes ASCII characters exactly as
+          ASCII does, every plain ASCII file is already valid UTF-8.</li>
+      </ul>
     </article>
+
+    <section class="card">
+      <label for="unicode-input" class="field-label">Your text</label>
+      <textarea id="unicode-input" rows="2" spellcheck="false"
+        placeholder="Type or paste text here...">Café ☕ 日本語 🔥</textarea>
+      <div class="input-meta">
+        <span id="unicode-char-count">0</span> characters &middot; <span id="unicode-byte-count">0</span> UTF-8 bytes
+      </div>
+    </section>
+
+    <section class="card">
+      <div id="unicode-info-panel" class="info-panel info-empty">
+        <span class="info-hint">Hover a character above, or a row in the table below, to inspect it.</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">Characters &amp; their UTF-8 bytes</span>
+      </div>
+      <div id="unicode-groups" class="unicode-groups" aria-label="Character to byte breakdown"></div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">What it costs</span>
+      </div>
+      <div class="info-panel">
+        <div class="info-item"><span class="k">Characters</span><span class="v" id="u-stat-chars">0</span></div>
+        <div class="info-item"><span class="k">UTF-8 bytes</span><span class="v" id="u-stat-bytes">0</span></div>
+        <div class="info-item"><span class="k">As 1-byte ASCII</span><span class="v" id="u-stat-ascii">0</span></div>
+        <div class="info-item"><span class="k">Overhead</span><span class="v" id="u-stat-ratio">&mdash;</span></div>
+      </div>
+      <div class="size-bars">
+        <div class="size-bar-row">
+          <span class="size-bar-label">UTF-8 (actual)</span>
+          <div class="size-bar-track"><div class="size-bar-fill cost" id="u-bar-utf8" style="width:0%"></div></div>
+          <span class="size-bar-value" id="u-bar-utf8-value">0 bytes</span>
+        </div>
+        <div class="size-bar-row">
+          <span class="size-bar-label">ASCII (if it fit)</span>
+          <div class="size-bar-track"><div class="size-bar-fill impossible" id="u-bar-ascii" style="width:0%"></div></div>
+          <span class="size-bar-value" id="u-bar-ascii-value">0 bytes</span>
+        </div>
+      </div>
+      <p class="note-box" id="u-no-ascii-note" hidden></p>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <h2 class="field-label table-title">How UTF-8 length is decided</h2>
+      </div>
+      <p class="table-note">
+        Every UTF-8 byte length is determined entirely by the code point's range. Hover a row to
+        highlight matching characters above.
+      </p>
+      <table class="ascii-col" style="max-width:520px">
+        <thead><tr><th>Code point range</th><th>Bytes</th><th>Example</th></tr></thead>
+        <tbody id="unicode-length-table-body"></tbody>
+      </table>
+    </section>
+
   </section>
 
-  <!-- ================= HUFFMAN TAB (placeholder) ================= -->
+  <!-- ================= HUFFMAN TAB ================= -->
   <section id="tab-huffman" class="tab-panel" role="tabpanel" aria-labelledby="huffman" hidden>
+
     <article class="intro card">
-      <h2>Huffman compression &mdash; coming soon</h2>
+      <h2>What's going on here?</h2>
       <p>
-        Fixed-width codes like ASCII spend the same number of bits on common letters
-        (like <code>e</code>) as rare ones (like <code>z</code>). <strong>Huffman coding</strong>
-        builds a binary tree from character frequencies so common characters get shorter codes,
-        shrinking the overall message &mdash; a foundational idea in lossless data compression.
+        ASCII and UTF-8 both spend a <strong>fixed number of bits per character</strong> &mdash;
+        the letter "e" (extremely common in English) costs exactly as much as "z" (rare).
+        <strong>Huffman coding</strong> asks: what if common symbols got shorter codes, and rare
+        symbols got longer ones?
       </p>
-      <p>This tab will build a Huffman tree from your text live, show the resulting variable-length
-        codes, and compare the compressed size to plain ASCII.</p>
+      <p>
+        Type something below and it's scanned for how often each character appears. A
+        <strong>binary tree</strong> is then built by repeatedly combining the two least-frequent
+        symbols into one, until a single tree remains. Walking from the root to a symbol's leaf
+        &mdash; left = 0, right = 1 &mdash; gives that symbol's code, so frequent symbols (near the
+        top) get short codes and rare ones (buried deep) get long ones.
+      </p>
+      <ul class="takeaways">
+        <li><strong>No code is a prefix of another</strong> &mdash; this "prefix property" is what
+          lets a decoder read the bitstream one symbol at a time, with no separators and no ambiguity.</li>
+        <li><strong>The payoff:</strong> even though rare symbols get codes longer than ASCII's flat
+          8 bits, the common ones get much shorter &mdash; the total is almost always smaller.</li>
+        <li><strong>A security wrinkle:</strong> compressed size leaks information about repeated
+          patterns in the input. Attacks like CRIME and BREACH exploited HTTP/TLS compression to
+          steal secrets (like session cookies) from encrypted traffic, byte by byte.</li>
+      </ul>
     </article>
+
+    <section class="card">
+      <label for="huffman-input" class="field-label">Your text</label>
+      <textarea id="huffman-input" rows="2" spellcheck="false"
+        placeholder="Type or paste text here...">abracadabra</textarea>
+      <div class="input-meta">
+        <span id="h-stat-symbols">0</span> distinct symbols &middot; <span id="huffman-char-count">0</span> characters
+      </div>
+    </section>
+
+    <section class="card">
+      <div id="huffman-info-panel" class="info-panel info-empty">
+        <span class="info-hint">Hover a leaf in the tree, a row in the table, or a code below to inspect it.</span>
+      </div>
+    </section>
+
+    <p class="note-box" id="huffman-empty-note" hidden>Type something above to build its Huffman tree.</p>
+
+    <div id="huffman-content">
+
+      <section class="card">
+        <div class="field-label-row">
+          <span class="field-label">Huffman tree</span>
+        </div>
+        <p class="table-note">Left branch = 0, right branch = 1. A leaf's color shows how long its code ended up &mdash; plain is short, red is long.</p>
+        <div id="huffman-tree-wrap" class="huffman-tree-wrap"></div>
+      </section>
+
+      <section class="card">
+        <div class="field-label-row">
+          <span class="field-label">Symbol table</span>
+        </div>
+        <table class="ascii-col" style="max-width:460px">
+          <thead><tr><th>Symbol</th><th>Count</th><th>Freq.</th><th>Code</th><th>Bits</th></tr></thead>
+          <tbody id="huffman-table-body"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <div class="field-label-row">
+          <span class="field-label">Encoded bitstream</span>
+        </div>
+        <div id="huffman-bits-view" class="code-view" aria-label="Huffman-encoded bits"></div>
+      </section>
+
+      <section class="card">
+        <div class="field-label-row">
+          <span class="field-label">What it saves</span>
+        </div>
+        <div class="info-panel">
+          <div class="info-item"><span class="k">Huffman bits</span><span class="v" id="h-stat-huffman-bits">0</span></div>
+          <div class="info-item"><span class="k">ASCII bits (8/char)</span><span class="v" id="h-stat-ascii-bits">0</span></div>
+          <div class="info-item"><span class="k">Savings</span><span class="v" id="h-stat-saved">&mdash;</span></div>
+        </div>
+        <div class="size-bars">
+          <div class="size-bar-row">
+            <span class="size-bar-label">ASCII (8 bits/char)</span>
+            <div class="size-bar-track"><div class="size-bar-fill" id="h-bar-ascii" style="width:0%"></div></div>
+            <span class="size-bar-value" id="h-bar-ascii-value">0 bits</span>
+          </div>
+          <div class="size-bar-row">
+            <span class="size-bar-label">Huffman</span>
+            <div class="size-bar-track"><div class="size-bar-fill cost" id="h-bar-huffman" style="width:0%"></div></div>
+            <span class="size-bar-value" id="h-bar-huffman-value">0 bits</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
   </section>
 
 </main>
@@ -160,6 +322,9 @@
   </div>
 </footer>
 
+<script src="../assets/common.js"></script>
 <script src="script.js"></script>
+<script src="unicode.js"></script>
+<script src="huffman.js"></script>
 </body>
 </html>

@@ -7,11 +7,16 @@ Pages and linked from a syllabus.
 
 ## Demos
 
-- [`encoding/`](encoding/) &mdash; **Text Encoding Explorer**. Type text and
-  see it encoded live as ASCII binary and hexadecimal, with synchronized
-  hover-highlighting across the text, binary, hex, and a full ASCII
-  reference table. Includes placeholder tabs for future Unicode and Huffman
-  compression demos.
+- [`encoding/`](encoding/) &mdash; **Text Encoding Explorer**, in three tabs:
+  - **ASCII** &mdash; text encoded live as binary and hex, with synchronized
+    hover-highlighting across the text, binary, hex, and a full ASCII
+    reference table.
+  - **Unicode** &mdash; the same text broken into UTF-8 bytes per character,
+    showing that non-English text and emoji are representable but cost more
+    (often 2&ndash;4&times; ASCII), plus a security note on homoglyph attacks.
+  - **Huffman** &mdash; builds a real Huffman tree from the input's letter
+    frequencies live (as an SVG diagram), assigns variable-length codes, and
+    compares the compressed bit count to plain ASCII.
 
 ## Visual identity: "Blueprint"
 
@@ -35,8 +40,11 @@ tables, buttons) so new demos inherit it automatically.
    ```
 3. Give it its own `style.css` and `script.js` for whatever is unique to
    that page &mdash; reuse `assets/theme.css`'s classes (`.title-block`,
-   `.card`, `.tabs`, `.unit`, etc.) rather than redefining colors or fonts,
-   so the series keeps reading as one system.
+   `.card`, `.tabs`, `.unit`, `.t2`/`.t3`/`.t4` cost tiers, `.size-bars`,
+   etc.) rather than redefining colors or fonts, so the series keeps reading
+   as one system. [`assets/common.js`](assets/common.js) has a couple of
+   small shared JS helpers (control-character glyphs, HTML-escaping) worth
+   including too.
 4. Link to `your-folder/index.html` from the syllabus or from this README.
 
 ## Hosting with GitHub Pages

@@ -279,6 +279,68 @@ textarea#input-text:focus {
   transform: translateY(-1px);
 }
 
+/* ---------- Cost tiers ----------
+   Generic escalating-cost scale reused anywhere a demo needs to show
+   "this costs more than that" (UTF-8 byte length, Huffman code length,
+   etc). t1 is the implicit default (no class needed); t2/t3/t4 escalate
+   from amber to violet to red, the same hues used for ASCII's
+   control/extended/outside categories. Bare classes carry color+fill so
+   they work on table cells and SVG text alike; the .unit variants add a
+   matching border. */
+.t2 { color: var(--bp-control); fill: var(--bp-control); }
+.t3 { color: var(--bp-extended); fill: var(--bp-extended); }
+.t4 { color: var(--bp-outside); fill: var(--bp-outside); }
+.unit.t2 { border-color: color-mix(in srgb, var(--bp-control) 45%, var(--bp-border)); }
+.unit.t3 { border-color: color-mix(in srgb, var(--bp-extended) 45%, var(--bp-border)); }
+.unit.t4 { border-color: color-mix(in srgb, var(--bp-outside) 45%, var(--bp-border)); }
+table.ascii-col td.t2 { color: var(--bp-control); }
+table.ascii-col td.t3 { color: var(--bp-extended); }
+table.ascii-col td.t4 { color: var(--bp-outside); }
+
+/* ---------- Size-comparison bars ----------
+   Reusable "this vs. that" byte/bit comparison, used by the Unicode and
+   Huffman tabs to make a size tradeoff visible at a glance. */
+.size-bars { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.size-bar-row { display: flex; align-items: center; gap: 10px; }
+.size-bar-label {
+  width: 150px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--bp-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.size-bar-track {
+  flex: 1;
+  height: 14px;
+  background: var(--bp-panel-soft);
+  border: 1px solid var(--bp-border);
+  overflow: hidden;
+}
+.size-bar-fill { height: 100%; background: var(--bp-accent); transition: width 150ms ease; }
+.size-bar-fill.cost { background: var(--bp-highlight); }
+.size-bar-fill.impossible {
+  background: repeating-linear-gradient(45deg, var(--bp-border) 0 6px, transparent 6px 12px);
+}
+.size-bar-value {
+  width: 78px;
+  flex-shrink: 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--bp-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+.note-box {
+  margin-top: 14px;
+  font-size: 0.88rem;
+  color: var(--bp-muted);
+  border-left: 2px solid var(--bp-border);
+  padding-left: 12px;
+}
+.note-box strong { color: var(--bp-text-strong); }
+
 /* ---------- Reference tables ---------- */
 .table-note { color: var(--bp-muted); font-size: 0.9rem; margin-top: 0; }
 .ascii-table-wrap {
