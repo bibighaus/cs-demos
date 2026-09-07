@@ -1,0 +1,351 @@
+/* ============================================================
+   CS-160 Demo Series — "Blueprint" shared design system
+   ------------------------------------------------------------
+   Link this file from any demo page, then add a small
+   page-specific stylesheet after it for layout unique to that
+   page. Component classes here (cards, tabs, chips, tables,
+   buttons) are meant to be reused as-is across demos so the
+   whole series reads as one visual system.
+   ============================================================ */
+
+:root {
+  /* -- palette -------------------------------------------------
+     Fixed dark "blueprint paper" theme by design, independent of
+     the viewer's OS light/dark setting — like real blueprints,
+     it doesn't have a light mode. */
+  --bp-bg: #0e2a4d;
+  --bp-bg-grid: rgba(255, 255, 255, 0.045);
+  --bp-panel: #123362;
+  --bp-panel-soft: rgba(255, 255, 255, 0.03);
+  --bp-border: #2e5c8c;
+  --bp-border-soft: rgba(127, 212, 255, 0.35);
+  --bp-text: #cfe5fb;
+  --bp-text-strong: #f2f8ff;
+  --bp-muted: #6f93b8;
+
+  --bp-accent: #7fd4ff;      /* cyan ink — structure, links, focus */
+  --bp-highlight: #ff7a52;   /* redline — annotations, hover, active state */
+  --bp-highlight-soft: rgba(255, 122, 82, 0.16);
+  --bp-control: #ffb454;     /* amber — control characters */
+  --bp-extended: #c792ea;    /* violet — extended-ASCII (128–255) */
+  --bp-outside: #ff5d78;     /* red — outside ASCII range entirely */
+
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  background:
+    repeating-linear-gradient(0deg, var(--bp-bg-grid) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, var(--bp-bg-grid) 0 1px, transparent 1px 28px),
+    var(--bp-bg);
+  color: var(--bp-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+
+a { color: var(--bp-accent); }
+
+:focus-visible {
+  outline: 2px solid var(--bp-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Title block (page header) ---------- */
+.site-header { padding: 36px 0 24px; }
+.title-block {
+  border: 1px solid var(--bp-border);
+  background: var(--bp-panel-soft);
+  padding: 16px 20px 18px;
+}
+.title-block .tb-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--bp-accent);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.title-block h1 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 1.7rem;
+  color: var(--bp-text-strong);
+}
+.title-block .subtitle {
+  margin: 0;
+  color: var(--bp-text);
+  font-size: 0.98rem;
+  max-width: 640px;
+}
+
+/* ---------- Tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--bp-border);
+  padding-top: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bp-bg);
+  flex-wrap: wrap;
+}
+.tab-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  padding: 9px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bp-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tab-btn::before { content: "["; color: var(--bp-border); }
+.tab-btn::after { content: "]"; color: var(--bp-border); }
+.tab-btn:hover { color: var(--bp-text); }
+.tab-btn.active {
+  color: var(--bp-accent);
+  border-color: var(--bp-border);
+  border-bottom: 2px solid var(--bp-bg);
+  margin-bottom: -1px;
+  background: var(--bp-panel-soft);
+}
+.tab-btn.active::before,
+.tab-btn.active::after { color: var(--bp-accent); }
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--bp-bg);
+  background: var(--bp-accent);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+/* ---------- Cards / panels ---------- */
+.card {
+  background: var(--bp-panel-soft);
+  border: 1px solid var(--bp-border);
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+.intro h2 {
+  margin-top: 0;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--bp-text-strong);
+  font-size: 1.15rem;
+}
+.intro p { color: var(--bp-text); }
+.intro code {
+  font-family: var(--font-mono);
+  background: var(--bp-panel);
+  border: 1px solid var(--bp-border);
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+.takeaways {
+  margin: 14px 0 0;
+  padding-left: 20px;
+  color: var(--bp-muted);
+}
+.takeaways li { margin-bottom: 6px; }
+.takeaways strong { color: var(--bp-text-strong); }
+
+/* ---------- Field labels / inputs ---------- */
+.field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bp-accent);
+  margin-bottom: 8px;
+}
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.table-title { margin: 0; }
+
+textarea#input-text {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 12px 14px;
+  border: 1px dashed var(--bp-border);
+  background: var(--bp-panel-soft);
+  color: var(--bp-text-strong);
+  resize: vertical;
+}
+textarea#input-text:focus {
+  outline: none;
+  border-style: solid;
+  border-color: var(--bp-accent);
+  box-shadow: 0 0 0 3px var(--bp-highlight-soft);
+}
+.input-meta {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--bp-muted);
+}
+
+/* ---------- Info panel ---------- */
+.info-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  min-height: 34px;
+  align-items: center;
+}
+.info-empty .info-hint { color: var(--bp-muted); font-style: italic; }
+.info-item { display: flex; flex-direction: column; gap: 2px; }
+.info-item .k {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bp-muted);
+}
+.info-item .v {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--bp-highlight);
+}
+.info-item .v.glyph { font-size: 1.4rem; min-width: 1.4em; }
+
+/* ---------- Character / code chip views ---------- */
+.char-view, .code-view {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+.unit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  background: var(--bp-panel-soft);
+  border: 1px solid var(--bp-border);
+  color: var(--bp-text);
+  cursor: default;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+  font-size: 0.95rem;
+}
+.char-view .unit { min-width: 1.9em; font-size: 1.05rem; }
+.code-view .unit { font-size: 0.85rem; }
+
+.unit.control { color: var(--bp-control); border-color: color-mix(in srgb, var(--bp-control) 45%, var(--bp-border)); font-size: 0.72rem; padding: 4px 6px; }
+.unit.extended { color: var(--bp-extended); border-color: color-mix(in srgb, var(--bp-extended) 45%, var(--bp-border)); }
+.unit.outside { color: var(--bp-outside); border-color: color-mix(in srgb, var(--bp-outside) 45%, var(--bp-border)); }
+
+.unit.active {
+  background: var(--bp-highlight-soft);
+  border-color: var(--bp-highlight);
+  color: var(--bp-highlight-strong);
+  transform: translateY(-1px);
+}
+
+/* ---------- Reference tables ---------- */
+.table-note { color: var(--bp-muted); font-size: 0.9rem; margin-top: 0; }
+.ascii-table-wrap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  overflow-x: auto;
+}
+table.ascii-col {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+table.ascii-col th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bp-muted);
+  border-bottom: 1px solid var(--bp-border);
+  padding: 4px 6px;
+}
+table.ascii-col td {
+  padding: 3px 6px;
+  border-bottom: 1px solid rgba(46, 92, 140, 0.4);
+  color: var(--bp-text);
+}
+table.ascii-col tr.active-row td {
+  background: var(--bp-highlight-soft);
+  color: var(--bp-highlight-strong);
+}
+table.ascii-col tr.control-row td:last-child { color: var(--bp-control); }
+
+@media (max-width: 860px) { .ascii-table-wrap { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) {
+  .ascii-table-wrap { grid-template-columns: 1fr; }
+  .title-block h1 { font-size: 1.3rem; }
+}
+
+/* ---------- Buttons ---------- */
+.copy-btn, .toggle-btn {
+  appearance: none;
+  border: 1px solid var(--bp-border);
+  background: transparent;
+  color: var(--bp-accent);
+  padding: 6px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.copy-btn:hover, .toggle-btn:hover { border-color: var(--bp-accent); background: var(--bp-panel-soft); }
+.copy-btn.copied { background: var(--bp-accent); color: var(--bp-bg); border-color: var(--bp-accent); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--bp-border);
+  padding: 18px 0 40px;
+  color: var(--bp-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tab-panel[hidden] { display: none; }
