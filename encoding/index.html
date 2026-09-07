@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text Encoding Explorer &mdash; ASCII</title>
+<meta name="description" content="An interactive demo showing how text is encoded as ASCII binary and hexadecimal.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="header-text">
+      <h1>Text Encoding Explorer</h1>
+      <p class="subtitle">How computers turn the letters you type into numbers &mdash; and why that matters for cybersecurity.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs wrap" role="tablist" aria-label="Encoding demos">
+  <button class="tab-btn active" data-tab="ascii" role="tab" aria-selected="true" aria-controls="tab-ascii">
+    ASCII
+  </button>
+  <button class="tab-btn" data-tab="unicode" role="tab" aria-selected="false" aria-controls="tab-unicode">
+    Unicode <span class="badge">Coming soon</span>
+  </button>
+  <button class="tab-btn" data-tab="huffman" role="tab" aria-selected="false" aria-controls="tab-huffman">
+    Huffman Compression <span class="badge">Coming soon</span>
+  </button>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= ASCII TAB ================= -->
+  <section id="tab-ascii" class="tab-panel active" role="tabpanel" aria-labelledby="ascii">
+
+    <article class="intro card">
+      <h2>What's going on here?</h2>
+      <p>
+        Computers don't store letters &mdash; they store numbers. <strong>ASCII</strong>
+        (American Standard Code for Information Interchange) is a 7-bit code, published in 1963,
+        that assigns every English letter, digit, and punctuation mark a number from 0&ndash;127.
+        Your keyboard sends a character, the computer looks up its number, and that number is
+        stored as <strong>binary</strong> (base 2) and is often written out in <strong>hexadecimal</strong>
+        (base 16) because hex is a compact, human-friendly way to represent groups of bits.
+      </p>
+      <p>
+        Type or paste something below. Each character becomes one byte (8 bits). Hover over any
+        character &mdash; in your text, in the binary, in the hex, or in the reference table &mdash;
+        and every matching occurrence lights up everywhere else, so you can see the connection.
+      </p>
+      <ul class="takeaways">
+        <li><strong>Why it matters for security:</strong> file signatures, buffer overflows, encoding-based
+          injection attacks, and log/packet analysis all require reading raw bytes, not just text.</li>
+        <li><strong>Encoding &ne; encryption:</strong> ASCII is a public, fixed lookup table &mdash; anyone
+          can decode it. It hides nothing; it's just a format.</li>
+        <li><strong>128 vs 256:</strong> standard ASCII only defines 0&ndash;127. Codes 128&ndash;255
+          ("extended ASCII") are not standardized the same way across systems &mdash; a common source of
+          mojibake and interoperability bugs.</li>
+      </ul>
+    </article>
+
+    <section class="card">
+      <label for="input-text" class="field-label">Your text</label>
+      <textarea id="input-text" rows="3" spellcheck="false"
+        placeholder="Type or paste text here...">Hello, CS 101!</textarea>
+      <div class="input-meta">
+        <span id="char-count">0</span> characters &middot; <span id="byte-count">0</span> bytes
+      </div>
+    </section>
+
+    <section class="card info-card">
+      <div id="info-panel" class="info-panel info-empty">
+        <span class="info-hint">Hover over any character below to inspect it.</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">Characters</span>
+      </div>
+      <div id="char-view" class="char-view" aria-label="Character breakdown"></div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">Binary encoding (8 bits per byte)</span>
+        <button class="copy-btn" data-copy="binary-view" type="button">Copy</button>
+      </div>
+      <div id="binary-view" class="code-view" aria-label="Binary encoding"></div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">Hexadecimal encoding</span>
+        <button class="copy-btn" data-copy="hex-view" type="button">Copy</button>
+      </div>
+      <div id="hex-view" class="code-view" aria-label="Hexadecimal encoding"></div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <h2 class="field-label table-title">ASCII reference table (0&ndash;127)</h2>
+        <button class="toggle-btn" id="toggle-table" type="button" aria-expanded="true">Hide table</button>
+      </div>
+      <p class="table-note">
+        Codes 0&ndash;31 and 127 are non-printable <em>control characters</em> left over from
+        teletype days (e.g. <code>LF</code> = line feed / newline, <code>ESC</code> = escape).
+        Hover any row to see it highlighted above if it appears in your text.
+      </p>
+      <div id="ascii-table-wrap" class="ascii-table-wrap"></div>
+    </section>
+
+  </section>
+
+  <!-- ================= UNICODE TAB (placeholder) ================= -->
+  <section id="tab-unicode" class="tab-panel" role="tabpanel" aria-labelledby="unicode" hidden>
+    <article class="intro card">
+      <h2>Unicode &mdash; coming soon</h2>
+      <p>
+        ASCII only covers 128 characters, which is nowhere near enough for the world's languages,
+        emoji, and symbols. <strong>Unicode</strong> solves this by assigning a unique
+        <em>code point</em> to every character in every writing system, and encodes those code
+        points using variable-width schemes like <strong>UTF-8</strong> and <strong>UTF-16</strong>.
+      </p>
+      <p>This tab will let you compare UTF-8 vs. UTF-16 byte layouts, see multi-byte sequences,
+        and explore why encoding mismatches are a common source of bugs and security issues.</p>
+    </article>
+  </section>
+
+  <!-- ================= HUFFMAN TAB (placeholder) ================= -->
+  <section id="tab-huffman" class="tab-panel" role="tabpanel" aria-labelledby="huffman" hidden>
+    <article class="intro card">
+      <h2>Huffman compression &mdash; coming soon</h2>
+      <p>
+        Fixed-width codes like ASCII spend the same number of bits on common letters
+        (like <code>e</code>) as rare ones (like <code>z</code>). <strong>Huffman coding</strong>
+        builds a binary tree from character frequencies so common characters get shorter codes,
+        shrinking the overall message &mdash; a foundational idea in lossless data compression.
+      </p>
+      <p>This tab will build a Huffman tree from your text live, show the resulting variable-length
+        codes, and compare the compressed size to plain ASCII.</p>
+    </article>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Text Encoding Explorer &middot; Intro CS &amp; Cybersecurity demo series</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
