@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neural Network Visualizer</title>
+<meta name="description" content="Draw a digit and watch a real neural network classify it in 3D — an interactive introduction to how neurons, weights, and activations work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="title-block">
+      <div class="tb-meta">
+        <span>CS-160 / Fig. 4</span>
+        <span>Sheet 1 of 1 &middot; Rev A</span>
+      </div>
+      <h1>Neural Network Visualizer</h1>
+      <p class="subtitle">Draw a digit and watch a real, trained neural network classify it &mdash; neuron by neuron, in 3D.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <article class="intro card">
+    <h2>What's going on here?</h2>
+    <p>
+      This demo runs a small <strong>multi-layer perceptron</strong> (MLP) &mdash; one of
+      the simplest kinds of neural network &mdash; trained to recognize handwritten
+      digits from the classic <strong>MNIST</strong> dataset. Draw a digit on the 28&times;28
+      grid and your drawing becomes the network's <strong>input layer</strong>: 784 numbers,
+      one per pixel, each between 0 and 1.
+    </p>
+    <p>
+      From there, each layer computes a weighted sum of the previous layer's outputs, adds
+      a learned <strong>bias</strong>, and passes the result through an <strong>activation
+      function</strong> (ReLU) that decides how strongly that neuron "fires." The 3D scene
+      shows this happening live: spheres are neurons, colored by activation strength;
+      cylinders are the strongest connections between them. By the time the signal reaches
+      the 10-neuron <strong>output layer</strong>, it's been turned into a probability for
+      each digit 0&ndash;9.
+    </p>
+    <ul class="takeaways">
+      <li><strong>It's just arithmetic:</strong> every prediction is a chain of multiplications,
+        additions, and simple thresholding &mdash; matrix multiplication with extra steps. There's
+        no reasoning happening inside; the network has only ever learned statistical patterns
+        in pixels.</li>
+      <li><strong>Weights ARE the model:</strong> the ~109,000 numbers that make up this
+        network's connections are the entire "knowledge" it has. Training is nothing more than
+        nudging those numbers until predictions get better.</li>
+      <li><strong>Why it matters for security/ML:</strong> because a model only reacts to
+        pixel patterns, it can be fooled by inputs a human would never mistake for the target
+        class (<em>adversarial examples</em>) &mdash; and it silently inherits every bias
+        present in its training data.</li>
+    </ul>
+  </article>
+
+  <section class="card">
+    <h2 class="field-label table-title">Network architecture</h2>
+    <p class="table-note">The default export is a small, fully-connected network &mdash; deliberately
+      compact so the 3D view stays smooth:</p>
+    <div class="arch-diagram">
+      <div class="arch-layer">
+        <span class="arch-count">784</span>
+        <span class="arch-name">Input</span>
+        <span class="arch-detail">28&times;28 pixels</span>
+      </div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-layer">
+        <span class="arch-count">128</span>
+        <span class="arch-name">Hidden 1</span>
+        <span class="arch-detail">ReLU</span>
+      </div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-layer">
+        <span class="arch-count">64</span>
+        <span class="arch-name">Hidden 2</span>
+        <span class="arch-detail">ReLU</span>
+      </div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-layer">
+        <span class="arch-count">10</span>
+        <span class="arch-name">Output</span>
+        <span class="arch-detail">Softmax</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="field-label table-title">How to use it</h2>
+    <ul class="takeaways howto-list">
+      <li><strong>Draw:</strong> click-and-drag on the grid (top left) to sketch a digit, or
+        click a digit button below the grid to load a random real MNIST sample instead.</li>
+      <li><strong>Watch:</strong> activations light up neuron-by-neuron as your drawing
+        propagates through the network in real time.</li>
+      <li><strong>Read the prediction:</strong> the bar chart (top right) shows the
+        network's confidence for every digit 0&ndash;9.</li>
+      <li><strong>Click a neuron:</strong> inspect exactly which inputs and weights fed into
+        it, and where its output goes next.</li>
+      <li><strong>Scrub the timeline:</strong> drag the slider at the bottom to rewind training
+        itself &mdash; from random, untrained weights (10% accuracy, i.e. a coin flip across 10
+        digits) through 35 checkpoints up to 50&times; the dataset, watching accuracy climb.</li>
+      <li><strong>Orbit the camera:</strong> left-drag to rotate, right-drag to pan, scroll to zoom.</li>
+    </ul>
+  </section>
+
+  <section class="card launch-card">
+    <div class="launch-copy">
+      <h2 class="field-label table-title">Try it</h2>
+      <p>Opens as a full-screen 3D scene in the same tab.</p>
+    </div>
+    <a class="launch-btn" href="demo.html">Launch the demo &rarr;</a>
+  </section>
+
+  <figure class="card screenshot-card">
+    <img src="screenshot.jpg" alt="Screenshot of the neural network visualizer, showing a drawn digit propagating through 3D layers of neurons with a prediction chart." loading="lazy">
+    <figcaption>The network mid-inference: a drawn "3" propagating through two hidden layers to a confident output.</figcaption>
+  </figure>
+
+  <section class="card credit-card">
+    <h2 class="field-label table-title">Credit</h2>
+    <p>
+      This demo is adapted from
+      <a href="https://github.com/DFin/Neural-Network-Visualisation" target="_blank" rel="noopener noreferrer">Neural-Network-Visualisation</a>
+      by <strong><a href="https://github.com/DFin" target="_blank" rel="noopener noreferrer">DFin</a></strong>,
+      used under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License 2.0</a>.
+      The interface was restyled to match this repository's shared design system and
+      translated to English; the underlying 3D visualization, training pipeline, and MNIST
+      inference logic are the original author's work. See <a href="NOTICE.md">NOTICE.md</a>
+      and <a href="LICENSE">LICENSE</a> for full details.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">CS-160 Demo Series &middot; Neural Network Visualizer</div>
+</footer>
+
+</body>
+</html>
