@@ -17,6 +17,13 @@ Pages and linked from a syllabus.
   - **Huffman** &mdash; builds a real Huffman tree from the input's letter
     frequencies live (as an SVG diagram), assigns variable-length codes, and
     compares the compressed bit count to plain ASCII.
+- [`neural_nets/`](neural_nets/) &mdash; **Neural Network Visualizer**, a 3D,
+  real-time view of a small neural network classifying handwritten digits
+  (MNIST). Draw a digit and watch activations propagate neuron-by-neuron
+  through the network, inspect individual neurons, and scrub a training
+  timeline from random weights to a fully trained model. Adapted, with
+  credit, from [DFin/Neural-Network-Visualisation](https://github.com/DFin/Neural-Network-Visualisation)
+  &mdash; see [`neural_nets/NOTICE.md`](neural_nets/NOTICE.md).
 
 ## Visual identity: "Blueprint"
 

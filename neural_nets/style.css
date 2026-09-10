@@ -1,0 +1,101 @@
+/* Page-specific layout for the Neural Network Visualizer explanation page.
+   Shared look ("Blueprint") lives in ../assets/theme.css —
+   only things unique to this page go here. */
+
+main { padding: 28px 0 60px; }
+
+/* ---------- Architecture diagram ---------- */
+.arch-diagram {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.arch-layer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 18px;
+  border: 1px solid var(--bp-border);
+  background: var(--bp-panel-soft);
+  min-width: 96px;
+}
+.arch-count {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--bp-accent);
+}
+.arch-name {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bp-text-strong);
+}
+.arch-detail {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--bp-muted);
+}
+.arch-arrow {
+  color: var(--bp-highlight);
+  font-size: 1.3rem;
+}
+
+.howto-list { margin-top: 0; }
+
+/* ---------- Launch card ---------- */
+.launch-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.launch-copy p {
+  margin: 4px 0 0;
+  color: var(--bp-muted);
+  font-size: 0.9rem;
+}
+.launch-btn {
+  appearance: none;
+  display: inline-block;
+  border: 1px solid var(--bp-accent);
+  background: var(--bp-panel-soft);
+  color: var(--bp-accent);
+  padding: 12px 22px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.launch-btn:hover {
+  background: var(--bp-highlight-soft);
+  border-color: var(--bp-highlight);
+  color: var(--bp-highlight);
+}
+
+/* ---------- Screenshot ---------- */
+.screenshot-card {
+  padding: 12px;
+}
+.screenshot-card img {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--bp-border);
+}
+.screenshot-card figcaption {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--bp-muted);
+  text-align: center;
+}
+
+.credit-card p { color: var(--bp-text); }
