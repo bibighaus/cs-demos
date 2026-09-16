@@ -16,6 +16,6 @@ filtered down to the 25,000 most frequent purely-alphabetic English tokens
 common words and drops punctuation, numerals, and rare tokens), then
 re-packed as a flat `Float32Array` binary blob (`vecs-f32.bin`) plus a
 `words.json` index. `dim_stats.json` &mdash; the per-dimension mean,
-standard deviation, min, max, and the three lowest/highest words for each
+standard deviation, min, max, and the ten lowest/highest words for each
 of the 100 dimensions &mdash; was computed from that same 25,000-word set
 for this demo and is not part of the original GloVe release.
