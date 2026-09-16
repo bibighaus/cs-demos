@@ -14,7 +14,7 @@ const state = {
   vecs: null,          // Float32Array, row-major [vocabSize x dims]
   dims: 0,
   vocabSize: 0,
-  dimStats: null,      // { dims, vocabSize, dimensions: [{min,max,mean,std,lowest3,highest3}] }
+  dimStats: null,      // { dims, vocabSize, dimensions: [{min,max,mean,std,lowest,highest}] }
   showAllDims: false,
   current: null,       // { word, vec } for the last successful lookup
 };
@@ -185,7 +185,7 @@ function renderDimTable(word, vec) {
     tr.innerHTML = `
       <td>${d}</td>
       <td title="z = ${z.toFixed(2)} standard deviations from the mean">${value.toFixed(3)}</td>
-      <td>${extremeListHtml(stat.lowest3, word)}</td>
+      <td>${extremeListHtml(stat.lowest, word)}</td>
       <td>
         <div class="spectrum-cell">
           <div class="spectrum">
@@ -194,7 +194,7 @@ function renderDimTable(word, vec) {
           <span class="spectrum-byte">${byte}</span>
         </div>
       </td>
-      <td>${extremeListHtml(stat.highest3, word)}</td>
+      <td>${extremeListHtml(stat.highest, word)}</td>
     `;
     els.dimTableBody.appendChild(tr);
   }
