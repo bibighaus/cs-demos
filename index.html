@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS Demos</title>
+<meta name="description" content="Interactive, browser-based demos for an intro Computer Science & Cybersecurity course.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/theme.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="title-block">
+      <div class="tb-meta">
+        <span>CS-160</span>
+        <span>Demo Series &middot; Index</span>
+      </div>
+      <h1>CS Demos</h1>
+      <p class="subtitle">Interactive, browser-based demos for an intro Computer Science &amp;
+        Cybersecurity course &mdash; built to be explored, not just read.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="demo-grid">
+
+    <article class="demo-card card">
+      <div class="dc-body">
+        <span class="dc-tag">01 &middot; Encoding</span>
+        <h2>Text Encoding Explorer</h2>
+        <p>
+          Watch text become bits. Three linked views &mdash; <strong>ASCII</strong>,
+          <strong>Unicode/UTF-8</strong>, and <strong>Huffman coding</strong> &mdash; with
+          synchronized hover-highlighting across the text, binary, hex, and a live-built
+          compression tree.
+        </p>
+      </div>
+      <a class="cta-btn" href="encoding/index.html">Open demo &rarr;</a>
+    </article>
+
+    <article class="demo-card card">
+      <div class="dc-body">
+        <span class="dc-tag">02 &middot; Neural Networks</span>
+        <h2>Neural Network Visualizer</h2>
+        <p>
+          A 3D, real-time view of a small neural network classifying handwritten digits
+          (MNIST). Draw a digit and watch activations propagate neuron-by-neuron, then
+          scrub a training timeline from random weights to a fully trained model.
+        </p>
+      </div>
+      <a class="cta-btn" href="neural_nets/index.html">Open demo &rarr;</a>
+    </article>
+
+    <article class="demo-card card">
+      <div class="dc-body">
+        <span class="dc-tag">03 &middot; Embeddings</span>
+        <h2>Word Embeddings Explorer</h2>
+        <p>
+          Search a word and see the real 100-dimensional <strong>GloVe</strong> vector behind
+          it, then see which dimensions are most unusual for that word and which other words
+          sit at each dimension's extremes &mdash; a concrete warm-up for Attention.
+        </p>
+      </div>
+      <a class="cta-btn" href="embeddings/index.html">Open demo &rarr;</a>
+    </article>
+
+  </section>
+
+  <section class="card about-card">
+    <h2>About this series</h2>
+    <p>
+      Every demo is a dependency-free static page (HTML/CSS/JS, no build step) sharing one
+      visual language &mdash; <strong>"Blueprint"</strong>: a dark, technical-drawing
+      aesthetic with cyan structure lines and a warm "redline" orange reserved for hover and
+      highlight states. That consistency is deliberate: once a student learns to read one
+      demo, they can read all of them.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>CS Demos &middot; Intro CS &amp; Cybersecurity demo series</p>
+  </div>
+</footer>
+
+</body>
+</html>
