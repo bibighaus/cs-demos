@@ -24,6 +24,15 @@ Pages and linked from a syllabus.
   timeline from random weights to a fully trained model. Adapted, with
   credit, from [DFin/Neural-Network-Visualisation](https://github.com/DFin/Neural-Network-Visualisation)
   &mdash; see [`neural_nets/NOTICE.md`](neural_nets/NOTICE.md).
+- [`embeddings/`](embeddings/) &mdash; **Word Embeddings Explorer**. Search a
+  word and see its real 100-dimensional [GloVe](https://nlp.stanford.edu/projects/glove/)
+  vector, then inspect a table of its dimensions ranked by how far each one
+  deviates from that dimension's average &mdash; alongside the words that sit
+  at that dimension's floor and ceiling, and a 0&ndash;255 spectrum showing
+  where this word falls between them. Meant as a concrete warm-up before
+  discussing Attention (static, context-free vectors vs. what Attention lets
+  a model do instead). See [`embeddings/NOTICE.md`](embeddings/NOTICE.md)
+  for data attribution.
 
 ## Visual identity: "Blueprint"
 

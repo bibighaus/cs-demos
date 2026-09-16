@@ -1,0 +1,163 @@
+/* Page-specific layout for the Word Embeddings Explorer.
+   Shared look ("Blueprint") lives in ../assets/theme.css —
+   only things unique to this page go here. */
+
+main { padding: 28px 0 60px; }
+
+/* ---------- Search ---------- */
+.search-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+#word-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  padding: 10px 14px;
+  border: 1px dashed var(--bp-border);
+  background: var(--bp-panel-soft);
+  color: var(--bp-text-strong);
+}
+#word-input:focus {
+  outline: none;
+  border-style: solid;
+  border-color: var(--bp-accent);
+  box-shadow: 0 0 0 3px var(--bp-highlight-soft);
+}
+#search-btn { flex-shrink: 0; padding: 0 18px; font-size: 0.8rem; }
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--bp-panel);
+  border: 1px solid var(--bp-border);
+  border-top: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.suggestion-item {
+  padding: 7px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--bp-text);
+  cursor: pointer;
+}
+.suggestion-item:hover,
+.suggestion-item.active {
+  background: var(--bp-highlight-soft);
+  color: var(--bp-highlight-strong, var(--bp-text-strong));
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.chip-row .word-chip {
+  appearance: none;
+  border: 1px solid var(--bp-border);
+  background: transparent;
+  color: var(--bp-muted);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+.chip-row .word-chip:hover {
+  color: var(--bp-accent);
+  border-color: var(--bp-accent);
+}
+
+/* ---------- Raw vector grid ---------- */
+.vector-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  font-family: var(--font-mono);
+}
+.vector-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 2px;
+  border: 1px solid var(--bp-border);
+  background: var(--bp-panel-soft);
+  cursor: default;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+.vector-cell .vc-dim {
+  font-size: 0.6rem;
+  color: var(--bp-muted);
+}
+.vector-cell .vc-val {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bp-text-strong);
+}
+.vector-cell.hover-active {
+  border-color: var(--bp-highlight);
+  transform: translateY(-1px);
+  background: var(--bp-highlight-soft);
+}
+@media (max-width: 700px) { .vector-grid { grid-template-columns: repeat(5, 1fr); } }
+
+/* ---------- Dimension table ---------- */
+.dim-table-wrap { overflow-x: auto; }
+table.dim-table { min-width: 720px; }
+table.dim-table td { vertical-align: middle; padding-top: 8px; padding-bottom: 8px; }
+table.dim-table th:nth-child(1),
+table.dim-table td:nth-child(1) { text-align: right; width: 3.5em; }
+table.dim-table th:nth-child(2),
+table.dim-table td:nth-child(2) { text-align: right; width: 5em; }
+table.dim-table td:nth-child(3),
+table.dim-table td:nth-child(5) { font-size: 0.74rem; color: var(--bp-muted); }
+table.dim-table td:nth-child(4) { min-width: 160px; }
+
+table.dim-table tbody tr.hover-active td {
+  background: var(--bp-highlight-soft);
+}
+table.dim-table td.this-word { color: var(--bp-highlight); font-weight: 600; }
+
+.extreme-word { display: block; line-height: 1.5; }
+.extreme-word .ew-w { color: var(--bp-text); }
+.extreme-word .ew-v { color: var(--bp-muted); }
+.extreme-word.this-word .ew-w,
+.extreme-word.this-word .ew-v { color: var(--bp-highlight); font-weight: 600; }
+
+/* Spectrum: a 0–255 track with a marker showing where the current
+   word's value falls between that dimension's lowest and highest word. */
+.spectrum-cell { display: flex; align-items: center; gap: 8px; }
+.spectrum {
+  position: relative;
+  flex: 1;
+  height: 14px;
+  background: linear-gradient(90deg, var(--bp-accent), var(--bp-panel-soft) 50%, var(--bp-highlight));
+  border: 1px solid var(--bp-border);
+}
+.spectrum .spectrum-marker {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 20px;
+  background: var(--bp-text-strong);
+  box-shadow: 0 0 0 1px var(--bp-bg);
+  transform: translateX(-1.5px);
+}
+.spectrum-byte {
+  flex-shrink: 0;
+  width: 2.4em;
+  font-size: 0.68rem;
+  color: var(--bp-muted);
+  font-variant-numeric: tabular-nums;
+}

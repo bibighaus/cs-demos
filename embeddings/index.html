@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word Embeddings Explorer</title>
+<meta name="description" content="Search a word and see the 100 numbers that encode its meaning — GloVe word embeddings, dimension by dimension, as a warm-up for Attention.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="title-block">
+      <div class="tb-meta">
+        <span>CS-160 / Fig. 4</span>
+        <span>Sheet 1 of 1 &middot; Rev A</span>
+      </div>
+      <h1>Word Embeddings Explorer</h1>
+      <p class="subtitle">How a single word becomes a list of numbers &mdash; and how those numbers encode meaning. A warm-up for Attention.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <article class="intro card">
+    <h2>What's going on here?</h2>
+    <p>
+      A neural network can't read the word <code>king</code> &mdash; it needs numbers. An
+      <strong>embedding</strong> is a lookup table that assigns every word a fixed-length list of
+      numbers (a <strong>vector</strong>) such that words with similar meanings end up with similar
+      numbers. This demo uses <strong>GloVe</strong> (Pennington, Socher &amp; Manning, 2014), one of
+      the best-known publicly available English word embeddings, trained by counting how often every
+      pair of words co-occurs across billions of words of text and compressing those statistics down
+      to <span id="dims-inline">100</span> numbers per word.
+    </p>
+    <p>
+      Different models pick different vector lengths &mdash; GloVe ships in 50, 100, 200, and 300
+      dimensions; BERT uses 768; some smaller Transformer models use 512. The length itself isn't
+      the point. What matters is the idea: <strong>meaning gets encoded as a position in a
+      high-dimensional space</strong>, and every dimension of that space captures some (usually
+      blurry, hard-to-name) aspect of usage. Search a word below, then look at the table &mdash;
+      for each of its dimensions, you'll see which other words sit at the two extremes of that
+      dimension, so you can get a feel for what it might be picking up on.
+    </p>
+    <ul class="takeaways">
+      <li><strong>One vector per word, always &mdash; no context.</strong> GloVe gives
+        <code>bank</code> exactly one vector, blending "river bank" and "money bank" into a single
+        average point. That's precisely the limitation <strong>Attention</strong> fixes: it lets a
+        model recompute a word's representation differently depending on the words around it.</li>
+      <li><strong>No single dimension "means" one thing.</strong> Unlike a spreadsheet column, GloVe's
+        dimensions aren't individually labeled ("dimension 12 = royalty"). Meaning is smeared across
+        combinations of many dimensions at once &mdash; look for tendencies in the extreme-word lists,
+        not clean categories.</li>
+      <li><strong>Embeddings inherit bias from their training text.</strong> Famously, occupation
+        words like <code>doctor</code>/<code>nurse</code> or <code>engineer</code>/<code>homemaker</code>
+        pick up gender associations from the news and web text GloVe was trained on &mdash; a
+        real-world consequence of "meaning" learned statistically rather than designed by hand.</li>
+      <li><strong>This vocabulary is limited.</strong> To keep this page small enough to load in a
+        browser, it ships the 25,000 most common words in GloVe's vocabulary (out of 400,000).
+        A word that doesn't appear is "out of vocabulary" &mdash; a real problem production systems
+        have to handle too (often by breaking rare words into smaller sub-word pieces).</li>
+    </ul>
+  </article>
+
+  <section class="card">
+    <label for="word-input" class="field-label">Search a word</label>
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <input type="text" id="word-input" autocomplete="off" spellcheck="false"
+          placeholder="Type a word&hellip; (e.g. king, bank, happy)" value="king">
+        <div id="suggestions" class="suggestions" hidden></div>
+      </div>
+      <button class="toggle-btn" id="search-btn" type="button">Look up</button>
+    </div>
+    <div class="chip-row" id="example-chips" aria-label="Example words"></div>
+    <div class="input-meta" id="vocab-meta">Loading vocabulary&hellip;</div>
+  </section>
+
+  <p class="note-box" id="oov-note" hidden>
+    <strong id="oov-word"></strong> isn't in this demo's 25,000-word vocabulary. Try a shorter,
+    more common word &mdash; or a different form of it (e.g. singular instead of plural).
+  </p>
+
+  <div id="result-content" hidden>
+
+    <section class="card">
+      <div class="info-panel">
+        <div class="info-item"><span class="k">Word</span><span class="v" id="stat-word">&mdash;</span></div>
+        <div class="info-item"><span class="k">Dimensions</span><span class="v" id="stat-dims">&mdash;</span></div>
+        <div class="info-item"><span class="k">Vocabulary rank</span><span class="v" id="stat-rank">&mdash;</span></div>
+        <div class="info-item"><span class="k">Most unusual dimension</span><span class="v" id="stat-top-dim">&mdash;</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">Raw vector values</span>
+      </div>
+      <p class="table-note">
+        Every one of these numbers is one coordinate of the word's position in embedding space.
+        Hover a cell (or a row below) to line the two views up. Color shows sign &amp; size: cyan =
+        positive, orange = negative &mdash; brighter is bigger.
+      </p>
+      <div id="vector-grid" class="vector-grid" aria-label="Raw embedding values"></div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <h2 class="field-label table-title">Dimensions, ranked by how unusual this word is</h2>
+        <button class="toggle-btn" id="toggle-dim-table" type="button" aria-expanded="false">Show all 100</button>
+      </div>
+      <p class="table-note">
+        Sorted by <strong>deviation from average</strong> &mdash; how many standard deviations this
+        word's value is from the mean value of that dimension across the whole vocabulary
+        (largest first). The two word-list columns show which words sit at that dimension's
+        rock-bottom and its ceiling, across all 25,000 words &mdash; a rough clue to what the
+        dimension is sensitive to. The bar shows where this word falls on that dimension's own
+        0&ndash;255 scale, from that floor to that ceiling.
+      </p>
+      <div class="dim-table-wrap">
+        <table class="ascii-col dim-table">
+          <thead>
+            <tr>
+              <th>Dim #</th>
+              <th>Value</th>
+              <th>Lowest 3 for this dimension</th>
+              <th>Spectrum (0&ndash;255)</th>
+              <th>Highest 3 for this dimension</th>
+            </tr>
+          </thead>
+          <tbody id="dim-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Word Embeddings Explorer &middot; Intro CS &amp; Cybersecurity demo series &middot;
+      Vectors: GloVe (Pennington, Socher &amp; Manning, 2014) &mdash; see
+      <a href="NOTICE.md">NOTICE.md</a></p>
+  </div>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
