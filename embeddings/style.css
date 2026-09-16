@@ -155,7 +155,7 @@ table.dim-table tbody tr.hover-active td {
   position: relative;
   flex: 1;
   height: 14px;
-  background: linear-gradient(90deg, var(--bp-accent), var(--bp-panel-soft) 50%, var(--bp-highlight));
+  background: linear-gradient(90deg, var(--bp-highlight), var(--bp-panel-soft) 50%, var(--bp-accent));
   border: 1px solid var(--bp-border);
 }
 .spectrum .spectrum-marker {
