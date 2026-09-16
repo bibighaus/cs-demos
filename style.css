@@ -1,0 +1,77 @@
+/* Page-specific layout for the CS Demos index/landing page.
+   Shared look ("Blueprint") lives in assets/theme.css —
+   only things unique to this page go here. */
+
+main { padding: 28px 0 60px; }
+
+/* ---------- Demo cards ---------- */
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.demo-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 0;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+.demo-card:hover {
+  border-color: var(--bp-accent);
+  transform: translateY(-2px);
+}
+.dc-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bp-accent);
+  margin-bottom: 8px;
+}
+.demo-card h2 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--bp-text-strong);
+  font-size: 1.15rem;
+}
+.demo-card p {
+  margin: 0;
+  color: var(--bp-text);
+  font-size: 0.94rem;
+}
+.demo-card .cta-btn {
+  align-self: flex-start;
+  appearance: none;
+  border: 1px solid var(--bp-border);
+  background: transparent;
+  color: var(--bp-accent);
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+.demo-card:hover .cta-btn {
+  border-color: var(--bp-highlight);
+  background: var(--bp-highlight-soft);
+  color: var(--bp-highlight);
+}
+
+/* ---------- About card ---------- */
+.about-card h2 {
+  margin-top: 0;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--bp-text-strong);
+  font-size: 1.05rem;
+}
+.about-card p { margin: 0; color: var(--bp-text); }
