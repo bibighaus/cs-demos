@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caesar Cipher Lab</title>
+<meta name="description" content="An interactive Caesar cipher wheel, plus a guided frequency-analysis lab for breaking it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="title-block">
+      <div class="tb-meta">
+        <span>CS-160 / Fig. 5</span>
+        <span>Sheet 1 of 2 &middot; Rev A</span>
+      </div>
+      <h1>Caesar Cipher Lab</h1>
+      <p class="subtitle">Turn a cipher wheel to hide a message &mdash; then use the statistics of
+        the English language to break someone else's.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs wrap" role="tablist" aria-label="Cryptography demos">
+  <button class="tab-btn active" data-tab="caesar" role="tab" aria-selected="true" aria-controls="tab-caesar">
+    Caesar Cipher
+  </button>
+  <button class="tab-btn" data-tab="analysis" role="tab" aria-selected="false" aria-controls="tab-analysis">
+    Cryptanalysis
+  </button>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= CAESAR TAB ================= -->
+  <section id="tab-caesar" class="tab-panel" role="tabpanel" aria-labelledby="caesar">
+
+    <article class="intro card">
+      <h2>What's going on here?</h2>
+      <p>
+        The <strong>Caesar cipher</strong> is one of the oldest known ciphers &mdash; Julius
+        Caesar reportedly used it for military messages around 50&nbsp;BC. Every letter of the
+        <strong>plaintext</strong> is replaced by the letter a fixed number of places further
+        along the alphabet, wrapping from Z back around to A. That fixed number is the
+        <strong>key</strong> (or <em>shift</em>). Caesar's own key was 3: A&rarr;D, B&rarr;E, &hellip;
+        X&rarr;A.
+      </p>
+      <p>
+        The wheel below is a real cipher disk. The <strong>outer ring</strong> is the plaintext
+        alphabet and stays put; the <strong>inner ring</strong> is the ciphertext alphabet.
+        <strong>Drag the inner ring</strong> (or use the buttons, slider, or arrow keys) to change
+        the key, and watch every letter's mapping change at once. Hover any letter to trace it.
+      </p>
+      <ul class="takeaways">
+        <li><strong>Same key, both directions:</strong> to encrypt, read outer &rarr; inner. To
+          decrypt, read inner &rarr; outer. Sender and receiver must share the key &mdash; this is
+          <em>symmetric</em> encryption.</li>
+        <li><strong>Only 25 useful keys:</strong> a key of 0 (or 26) changes nothing. That tiny
+          <em>key space</em> is the cipher's first fatal weakness &mdash; you could just try them all.</li>
+        <li><strong>The second weakness:</strong> every E always becomes the same letter. The
+          cipher hides <em>which</em> letters you used, but not <em>how often</em> &mdash; the
+          Cryptanalysis tab exploits exactly that.</li>
+      </ul>
+    </article>
+
+    <div class="caesar-layout">
+      <section class="card wheel-card">
+        <div class="field-label-row">
+          <span class="field-label">Cipher wheel</span>
+          <span class="key-readout">Key <strong id="key-value">3</strong></span>
+        </div>
+        <div class="wheel-wrap">
+          <svg id="wheel" class="wheel" viewBox="0 0 400 400" role="slider" tabindex="0"
+               aria-label="Cipher wheel. Use left and right arrow keys to change the key."
+               aria-valuemin="0" aria-valuemax="25" aria-valuenow="3"></svg>
+        </div>
+        <div class="key-controls">
+          <button class="toggle-btn" id="key-down" type="button" aria-label="Decrease key">&#9664; &minus;1</button>
+          <input type="range" id="key-slider" min="0" max="25" value="3" aria-label="Key">
+          <button class="toggle-btn" id="key-up" type="button" aria-label="Increase key">+1 &#9654;</button>
+        </div>
+        <p class="wheel-hint">Tip: drag the inner ring like a combination lock.</p>
+      </section>
+
+      <section class="card mapping-card">
+        <div class="field-label-row">
+          <span class="field-label">Letter mapping</span>
+        </div>
+        <div id="mapping" class="mapping" aria-label="Plaintext to ciphertext mapping"></div>
+        <div id="caesar-info" class="info-panel info-empty">
+          <span class="info-hint">Hover any letter to see its mapping.</span>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="field-label-row">
+        <label for="caesar-input" class="field-label" id="caesar-input-label">Plaintext</label>
+        <div class="seg" role="group" aria-label="Direction">
+          <button class="seg-btn active" data-mode="encrypt" type="button" aria-pressed="true">Encrypt</button>
+          <button class="seg-btn" data-mode="decrypt" type="button" aria-pressed="false">Decrypt</button>
+        </div>
+      </div>
+      <textarea id="caesar-input" class="text-input" rows="3" spellcheck="false"
+        placeholder="Type a message here...">Meet me at the library after class.</textarea>
+      <div class="input-meta">Letters are shifted; spaces, digits, and punctuation pass through unchanged.</div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label" id="caesar-output-label">Ciphertext</span>
+        <div class="btn-row">
+          <button class="copy-btn" id="copy-output" type="button">Copy</button>
+          <button class="toggle-btn" id="send-to-analysis" type="button">Try to crack it &rarr;</button>
+        </div>
+      </div>
+      <div id="caesar-output" class="cipher-text" aria-live="polite"></div>
+    </section>
+
+  </section>
+
+  <!-- ================= CRYPTANALYSIS TAB ================= -->
+  <section id="tab-analysis" class="tab-panel" role="tabpanel" aria-labelledby="analysis" hidden>
+
+    <article class="intro card">
+      <h2>Breaking the cipher without the key</h2>
+      <p>
+        <strong>Cryptanalysis</strong> is the art of reading a secret message without being given
+        the key. Around 850&nbsp;AD the Arab scholar <strong>al-Kindi</strong> described the
+        technique you'll use here: <strong>frequency analysis</strong>. In any long piece of
+        English, letters show up at predictable rates &mdash; E is about 12.7% of all letters,
+        T about 9%, while Q, X, and Z barely appear at all.
+      </p>
+      <p>
+        A Caesar cipher shifts every letter by the same amount, so it shifts that whole
+        <em>pattern</em> by the same amount too. The ciphertext's bar chart is just the English
+        bar chart slid sideways. Find how far it slid, and you've found the key.
+      </p>
+      <ol class="steps-overview">
+        <li><strong>Count</strong> how often each letter appears in the ciphertext.</li>
+        <li><strong>Compare</strong> that shape against normal English.</li>
+        <li><strong>Slide</strong> the English pattern until the peaks and valleys line up.</li>
+        <li><strong>Verify</strong> by decrypting &mdash; real words should appear.</li>
+      </ol>
+    </article>
+
+    <section class="card">
+      <div class="field-label-row">
+        <label for="analysis-input" class="field-label">Intercepted ciphertext</label>
+        <div class="btn-row">
+          <button class="toggle-btn" id="new-challenge" type="button">New challenge</button>
+          <button class="toggle-btn" id="clear-analysis" type="button">Paste your own</button>
+        </div>
+      </div>
+      <textarea id="analysis-input" class="text-input" rows="5" spellcheck="false"
+        placeholder="Paste ciphertext here..."></textarea>
+      <div class="input-meta">
+        <span id="letter-count">0</span> letters counted
+        <span id="short-warning" class="short-warning" hidden>&middot; short messages can fool frequency
+          analysis &mdash; try at least 100 letters</span>
+      </div>
+    </section>
+
+    <section class="card guide-card">
+      <div class="guide-head">
+        <ol class="stepper" id="stepper" aria-label="Steps">
+          <li><button type="button" data-step="0">1 &middot; Count</button></li>
+          <li><button type="button" data-step="1">2 &middot; Giveaway</button></li>
+          <li><button type="button" data-step="2">3 &middot; Slide</button></li>
+          <li><button type="button" data-step="3">4 &middot; Verify</button></li>
+          <li><button type="button" data-step="4">5 &middot; Automate</button></li>
+        </ol>
+      </div>
+
+      <div class="step-panel" data-step="0">
+        <h3>Step 1 &mdash; Count the letters</h3>
+        <p>
+          The chart below counts every letter in the ciphertext (<span class="ink-cipher">cyan bars</span>)
+          and puts normal English letter frequencies beside them (<span class="ink-english">orange
+          outlines</span>). Right now your key guess is 0 &mdash; no shift &mdash; and the two clearly
+          <strong>don't</strong> match: the ciphertext's peaks are in the wrong places.
+        </p>
+        <p class="hint-text">Look at the English outlines: tall at E, T, A, O, I, N; nearly flat at J, Q, X, Z.
+          Can you spot that same &ldquo;skyline&rdquo; somewhere in the cyan bars, just moved over?</p>
+      </div>
+
+      <div class="step-panel" data-step="1" hidden>
+        <h3>Step 2 &mdash; Find the giveaway letter</h3>
+        <p>The tallest English bar is <strong>E</strong>, so the tallest ciphertext bar is probably an
+          encrypted E.</p>
+        <div class="info-panel">
+          <div class="info-item"><span class="k">Most common cipher letter</span><span class="v glyph" id="top-letter">&mdash;</span></div>
+          <div class="info-item"><span class="k">Its frequency</span><span class="v" id="top-freq">&mdash;</span></div>
+          <div class="info-item"><span class="k">Runners-up</span><span class="v" id="runners-up">&mdash;</span></div>
+        </div>
+        <p class="hint-text" id="e-hint"></p>
+        <button class="toggle-btn" id="assume-e" type="button">Assume it's E &rarr; set my guess</button>
+      </div>
+
+      <div class="step-panel" data-step="2" hidden>
+        <h3>Step 3 &mdash; Slide English until it lines up</h3>
+        <p>
+          One letter can be a coincidence &mdash; a whole pattern can't. Move the key guess and watch
+          the orange outlines slide. When the guess is right, <em>every</em> peak lines up: E, T, A,
+          O, and also the low J-K and Q-X-Z valleys. The <strong>mismatch score</strong> (a
+          chi-squared statistic) measures how far apart the two shapes are &mdash; lower is better.
+        </p>
+        <p class="hint-text">If &ldquo;assume it's E&rdquo; didn't produce English, the top letter might be
+          T or A instead. Try a guess that makes the <em>second</em>-tallest bar line up with E.</p>
+      </div>
+
+      <div class="step-panel" data-step="3" hidden>
+        <h3>Step 4 &mdash; Verify: does it read as English?</h3>
+        <p>Statistics point to a <em>likely</em> key; reading the result proves it. Check the live
+          decryption under the chart. Real words? You've broken the cipher.</p>
+        <div id="crack-status" class="crack-status"></div>
+      </div>
+
+      <div class="step-panel" data-step="4" hidden>
+        <h3>Step 5 &mdash; Let the computer try every key</h3>
+        <p>A computer doesn't need to eyeball anything: it scores all 26 keys in well under a
+          millisecond and picks the lowest mismatch. Try it yourself first &mdash; then reveal its
+          answer to check your work.</p>
+        <button class="toggle-btn" id="reveal-all" type="button" aria-expanded="false">Reveal all 26 scores</button>
+        <div id="all-keys" class="all-keys" hidden>
+          <p class="table-note">Mismatch score for every possible key &mdash; <strong>lower is better</strong>.
+            The best key is filled orange; your current guess is outlined. Click a bar to try that key.</p>
+          <div class="key-bars" id="key-bars"></div>
+        </div>
+        <div class="note-box">
+          <strong>Why this matters:</strong> modern ciphers like AES are designed so ciphertext looks
+          statistically <em>random</em> &mdash; every byte equally likely, no skyline to line up. A
+          cipher that leaks the plaintext's patterns can be broken no matter how secret its key is.
+        </div>
+      </div>
+
+      <div class="guide-nav">
+        <button class="toggle-btn" id="step-back" type="button">&larr; Back</button>
+        <button class="toggle-btn" id="step-next" type="button">Next &rarr;</button>
+      </div>
+    </section>
+
+    <section class="card chart-card">
+      <div class="chart-head">
+        <div class="legend" aria-hidden="true">
+          <span class="lg-item"><span class="lg-swatch cipher"></span>Ciphertext</span>
+          <span class="lg-item"><span class="lg-swatch english"></span>English, shifted by your guess</span>
+        </div>
+        <button class="toggle-btn" id="toggle-freq-table" type="button" aria-expanded="false">Show table</button>
+      </div>
+      <div class="freq-chart" id="freq-chart" role="img" aria-label="Letter frequency comparison chart">
+        <div class="fc-y" aria-hidden="true" id="fc-y"></div>
+        <div class="fc-main">
+          <div class="fc-plot" id="fc-plot"></div>
+          <div class="fc-axis" id="fc-axis-cipher"></div>
+          <div class="fc-axis fc-axis-plain" id="fc-axis-plain"></div>
+        </div>
+        <div class="fc-axis-labels" aria-hidden="true">
+          <span>cipher</span>
+          <span class="plain">reads as</span>
+        </div>
+        <div class="chart-tip" id="chart-tip" hidden></div>
+      </div>
+      <div id="freq-table-wrap" class="freq-table-wrap" hidden></div>
+
+      <div class="guess-row">
+        <span class="field-label">Your key guess</span>
+        <button class="toggle-btn" id="guess-down" type="button" aria-label="Decrease key guess">&#9664;</button>
+        <input type="range" id="guess-slider" min="0" max="25" value="0" aria-label="Key guess">
+        <button class="toggle-btn" id="guess-up" type="button" aria-label="Increase key guess">&#9654;</button>
+        <div class="info-item"><span class="k">Key</span><span class="v" id="guess-value">0</span></div>
+        <div class="info-item"><span class="k">Mismatch (&chi;&sup2;)</span><span class="v" id="guess-score">&mdash;</span></div>
+      </div>
+      <div class="fit-meter" aria-hidden="true">
+        <div class="fit-track"><div class="fit-fill" id="fit-fill"></div></div>
+        <div class="fit-labels"><span>poor fit</span><span>great fit</span></div>
+      </div>
+
+      <div class="field-label-row preview-label">
+        <span class="field-label">Live decryption with your guess</span>
+      </div>
+      <div id="analysis-preview" class="cipher-text plain" aria-live="polite"></div>
+    </section>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Caesar Cipher Lab &middot; Intro CS &amp; Cybersecurity demo series</p>
+  </div>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="caesar.js"></script>
+<script src="cryptanalysis.js"></script>
+</body>
+</html>

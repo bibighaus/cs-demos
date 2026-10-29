@@ -36,6 +36,20 @@ Pages is enabled (see below).
   a model do instead). See [`embeddings/NOTICE.md`](embeddings/NOTICE.md)
   for data attribution.
 
+- [`cryptography/`](cryptography/) &mdash; **Caesar Cipher Lab**, in two tabs:
+  - **Caesar Cipher** &mdash; a draggable cipher wheel (outer ring plaintext,
+    inner ring ciphertext). Rotating the inner ring changes the key and every
+    letter mapping at once; a live mapping strip and encrypt/decrypt box are
+    hover-linked back to the wheel.
+  - **Cryptanalysis** &mdash; a guided, five-step frequency-analysis lab. The
+    ciphertext's letter frequencies are charted beside standard English
+    frequencies; students find the "giveaway" letter (E), slide the English
+    profile by a key guess until the peaks line up (with a chi-squared
+    mismatch score), verify by reading the live decryption, and finally
+    reveal the computer's score for all 26 keys. Comes with randomly keyed
+    challenge passages, or students can crack their own message from the
+    first tab.
+
 ## Visual identity: "Blueprint"
 
 Every demo shares one look &mdash; a dark, technical-drawing aesthetic
