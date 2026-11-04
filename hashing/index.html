@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hashing Lab</title>
+<meta name="description" content="Type text and watch its SHA-256 hash appear in hex and binary, build simple hash functions from basic math, and preview Bitcoin-style proof of work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="title-block">
+      <div class="tb-meta">
+        <span>CS-160 / Fig. 6</span>
+        <span>Sheet 1 of 3 &middot; Rev A</span>
+      </div>
+      <h1>Hashing Lab</h1>
+      <p class="subtitle">Turn any text into a fixed-size digital fingerprint &mdash; see it in hex and
+        in raw binary, build a hash function out of simple math, and preview how Bitcoin
+        uses hashes.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs wrap" role="tablist" aria-label="Hashing demos">
+  <button class="tab-btn active" data-tab="hash" role="tab" aria-selected="true" aria-controls="tab-hash">
+    Hash It
+  </button>
+  <button class="tab-btn" data-tab="math" role="tab" aria-selected="false" aria-controls="tab-math">
+    Math Hashes
+  </button>
+  <button class="tab-btn" data-tab="pow" role="tab" aria-selected="false" aria-controls="tab-pow">
+    Proof of Work <span class="badge">Crypto</span>
+  </button>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= HASH IT TAB ================= -->
+  <section id="tab-hash" class="tab-panel" role="tabpanel" aria-labelledby="hash">
+
+    <article class="intro card">
+      <h2>What's a hash?</h2>
+      <p>
+        A <strong>hash function</strong> takes an input of <em>any</em> size &mdash; one letter, a
+        password, an entire movie &mdash; and boils it down to a short, <strong>fixed-size</strong>
+        value called a <strong>hash</strong> (or <em>digest</em>). Think of it as a fingerprint for
+        data. The one below is <strong>SHA-256</strong>, the same function used by HTTPS, password
+        storage, Git, and Bitcoin. Its output is always <strong>256 bits</strong>, usually written as
+        64 hexadecimal digits.
+      </p>
+      <p>Type in the box and watch the fingerprint change. Hover any hex digit to see the 4 bits it stands for.</p>
+      <ul class="takeaways">
+        <li><strong>Deterministic:</strong> the same input <em>always</em> gives the same hash &mdash;
+          on any computer, forever.</li>
+        <li><strong>Fixed size:</strong> &ldquo;a&rdquo; and a 500-page book both produce exactly 256 bits.</li>
+        <li><strong>Avalanche effect:</strong> change one character and about <em>half</em> the bits flip.
+          Try it in the comparison box below.</li>
+        <li><strong>One-way:</strong> you can't run it backwards. Given only a hash, the only way to
+          find the input is to guess and check.</li>
+      </ul>
+    </article>
+
+    <section class="card">
+      <label for="hash-input" class="field-label">Input text</label>
+      <textarea id="hash-input" class="text-input" rows="3" spellcheck="false"
+        placeholder="Type anything...">Hello, world!</textarea>
+      <div class="input-meta"><span id="hash-in-chars">0</span> characters &middot;
+        <span id="hash-in-bytes">0</span> bytes (UTF-8) in &rarr; always 32 bytes (256 bits) out</div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">SHA-256 hash &middot; hexadecimal</span>
+        <button class="copy-btn" id="copy-hash" type="button">Copy</button>
+      </div>
+      <div id="hash-hex" class="hex-line" aria-live="polite"></div>
+
+      <div class="field-label-row binary-head">
+        <span class="field-label">Same hash &middot; binary (what the computer actually stores)</span>
+      </div>
+      <div id="hash-grid" class="nib-grid" aria-label="Hash as hex digits and their bits"></div>
+      <div id="hash-info" class="info-panel info-empty">
+        <span class="info-hint">Hover a hex digit to decode it into bits.</span>
+      </div>
+      <div class="note-box">
+        <strong>Hex is just shorthand for binary.</strong> Each hex digit stands for exactly 4 bits
+        (<code>0</code>&nbsp;=&nbsp;0000 &hellip; <code>f</code>&nbsp;=&nbsp;1111), so 64 hex digits &times;
+        4 = 256 bits. Humans read hex; the computer &mdash; and, as you'll see in the Proof of Work tab,
+        Bitcoin &mdash; cares about the bits.
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Avalanche test &mdash; change one character</h3>
+      <p class="hint-text">Edit this second message so it differs only slightly from the one above
+        (one letter, a capital, a period). Bits that differ from the first hash are marked
+        <span class="ink-flip">orange</span>.</p>
+      <div class="field-label-row">
+        <label for="hash-compare" class="field-label">Compare with</label>
+        <button class="toggle-btn" id="copy-from-above" type="button">Reset to text above</button>
+      </div>
+      <textarea id="hash-compare" class="text-input" rows="2" spellcheck="false">Hello, world.</textarea>
+      <div id="compare-hex" class="hex-line small"></div>
+      <div id="compare-grid" class="nib-grid compare"></div>
+      <div class="size-bars">
+        <div class="size-bar-row">
+          <span class="size-bar-label">Bits flipped</span>
+          <div class="size-bar-track"><div class="size-bar-fill cost" id="flip-fill"></div></div>
+          <span class="size-bar-value" id="flip-value">0 / 256</span>
+        </div>
+      </div>
+      <p class="hint-text" id="flip-note"></p>
+    </section>
+
+  </section>
+
+  <!-- ================= MATH HASHES TAB ================= -->
+  <section id="tab-math" class="tab-panel" role="tabpanel" aria-labelledby="math" hidden>
+
+    <article class="intro card">
+      <h2>A hash function is just math</h2>
+      <p>
+        SHA-256 looks like magic, but at heart a hash function is any recipe that turns input into a
+        number in a fixed range. You can build a basic one with arithmetic you already know. Every
+        character already <em>is</em> a number (its character code, e.g. <code>A</code>&nbsp;=&nbsp;65), so
+        we combine those numbers and then use the <strong>modulo</strong> operator
+        (<code>mod</code>, the remainder after division) to force the result into a fixed range of
+        <strong>m</strong> &ldquo;buckets&rdquo;: <code>0 &hellip; m&minus;1</code>.
+      </p>
+      <p>
+        This is exactly how a <strong>hash table</strong> (a Python <code>dict</code>, a Java
+        <code>HashMap</code>) decides where to store each key. Pick a recipe below and watch it work
+        step by step.
+      </p>
+    </article>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">Recipe</span>
+        <div class="seg" role="group" aria-label="Hash recipe" id="recipe-seg">
+          <button class="seg-btn active" data-recipe="sum" type="button" aria-pressed="true">1 &middot; Sum</button>
+          <button class="seg-btn" data-recipe="poly" type="button" aria-pressed="false">2 &middot; Polynomial</button>
+          <button class="seg-btn" data-recipe="fnv" type="button" aria-pressed="false">3 &middot; Multiply&ndash;XOR</button>
+        </div>
+      </div>
+      <div class="formula" id="recipe-formula"></div>
+      <p class="hint-text" id="recipe-desc"></p>
+
+      <div class="math-controls">
+        <div class="mc-field">
+          <label for="math-input" class="field-label">Input word</label>
+          <input id="math-input" class="text-input one-line" type="text" spellcheck="false" value="cat" maxlength="40">
+        </div>
+        <div class="mc-field">
+          <label for="m-slider" class="field-label">Buckets m = <strong id="m-value" class="hl-num">16</strong></label>
+          <div class="slider-row">
+            <input type="range" id="m-slider" min="2" max="64" value="16" aria-label="Number of buckets">
+          </div>
+          <div class="m-presets">
+            <button class="toggle-btn" data-m="8" type="button">8</button>
+            <button class="toggle-btn" data-m="13" type="button">13</button>
+            <button class="toggle-btn" data-m="16" type="button">16</button>
+            <button class="toggle-btn" data-m="32" type="button">32</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="math-layout">
+      <section class="card">
+        <span class="field-label">Step by step</span>
+        <div class="steps-wrap"><table class="ascii-col step-table" id="step-table"></table></div>
+      </section>
+
+      <section class="card">
+        <span class="field-label">Result</span>
+        <div class="result-rows" id="math-result"></div>
+        <div class="note-box" id="mod-note"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="field-label-row">
+        <label for="bucket-words" class="field-label">Hash table &middot; drop many words into m buckets</label>
+        <div class="btn-row">
+          <button class="toggle-btn" id="words-anagrams" type="button">Anagrams</button>
+          <button class="toggle-btn" id="words-animals" type="button">Animals</button>
+        </div>
+      </div>
+      <textarea id="bucket-words" class="text-input" rows="2" spellcheck="false"></textarea>
+      <div class="input-meta">Separate words with spaces or commas. Buckets holding 2+ words are
+        <span class="ink-flip">collisions</span>.</div>
+      <div class="info-panel bucket-stats" id="bucket-stats"></div>
+      <div class="buckets" id="buckets"></div>
+    </section>
+
+    <section class="card">
+      <ul class="takeaways tight">
+        <li><strong>Collisions are unavoidable.</strong> With infinitely many possible inputs and only
+          <em>m</em> buckets, some inputs <em>must</em> share a bucket (the <em>pigeonhole principle</em>).
+          SHA-256 has 2<sup>256</sup> &ldquo;buckets&rdquo; &mdash; collisions exist, but nobody has ever found one.</li>
+        <li><strong>Recipe 1 ignores order:</strong> addition doesn't care about order, so every anagram
+          (<em>listen</em>, <em>silent</em>, <em>enlist</em>&hellip;) collides. Recipe 2 multiplies by 31 at each
+          step so position matters.</li>
+        <li><strong>Prime m spreads better.</strong> Try Recipe 2 with m&nbsp;=&nbsp;13 vs. m&nbsp;=&nbsp;16 on the
+          Animals list.</li>
+        <li><strong>Good for hash tables, useless for security.</strong> These are fast and spread data
+          out, but anyone can work backwards or manufacture collisions on purpose. A
+          <em>cryptographic</em> hash like SHA-256 is designed so that's practically impossible.</li>
+      </ul>
+    </section>
+
+  </section>
+
+  <!-- ================= PROOF OF WORK TAB ================= -->
+  <section id="tab-pow" class="tab-panel" role="tabpanel" aria-labelledby="pow" hidden>
+
+    <article class="intro card">
+      <h2>Why Bitcoin cares about the bits</h2>
+      <p>
+        A cryptocurrency like <strong>Bitcoin</strong> records transactions in <em>blocks</em>. To add a
+        block, a computer must find a block whose SHA-256 hash, read in <strong>binary</strong>, starts
+        with a required number of <strong>0 bits</strong>. The only adjustable part is a throwaway
+        number called the <strong>nonce</strong>. Because hashes are unpredictable, there's no shortcut:
+        you try nonce 0, 1, 2, 3&hellip; and hash each until you get lucky. That guessing is called
+        <strong>mining</strong>, and the winning nonce is the <strong>proof of work</strong>.
+      </p>
+      <ul class="takeaways">
+        <li><strong>Hard to find, easy to check:</strong> finding the nonce may take millions of
+          guesses; anyone can verify it with a single hash.</li>
+        <li><strong>Each extra 0 bit doubles the work.</strong> A random hash starts with N zero
+          bits about once every 2<sup>N</sup> tries.</li>
+        <li><strong>Tamper-evident:</strong> change even one character of a mined block and its hash
+          changes completely &mdash; the proof of work is gone and must be redone.</li>
+      </ul>
+    </article>
+
+    <section class="card">
+      <span class="field-label">Block</span>
+      <div class="block-form">
+        <label class="bf-k" for="pow-data">Transactions</label>
+        <textarea id="pow-data" class="text-input" rows="2" spellcheck="false">Alice pays Bob 5 coins
+Bob pays Carol 2 coins</textarea>
+        <label class="bf-k" for="pow-nonce">Nonce</label>
+        <div class="nonce-row">
+          <input id="pow-nonce" class="text-input one-line nonce-input" type="number" min="0" step="1" value="0">
+          <button class="toggle-btn" id="nonce-down" type="button" aria-label="Previous nonce">&minus;1</button>
+          <button class="toggle-btn" id="nonce-up" type="button" aria-label="Next nonce">+1</button>
+        </div>
+      </div>
+      <div class="input-meta">What gets hashed: <code id="pow-preimage" class="preimage"></code></div>
+    </section>
+
+    <section class="card">
+      <div class="field-label-row">
+        <label for="diff-slider" class="field-label">Difficulty &middot; required leading zero bits:
+          <strong id="diff-value" class="hl-num">8</strong></label>
+        <span class="odds" id="diff-odds"></span>
+      </div>
+      <input type="range" id="diff-slider" min="1" max="20" value="8" aria-label="Difficulty in leading zero bits">
+      <div class="target-line" id="target-line" aria-label="Target pattern"></div>
+
+      <div class="field-label-row binary-head">
+        <span class="field-label">Block hash &middot; hex</span>
+        <span id="pow-status" class="pow-status"></span>
+      </div>
+      <div id="pow-hex" class="hex-line"></div>
+      <div class="field-label-row binary-head">
+        <span class="field-label">Block hash &middot; binary</span>
+        <span class="odds">leading zero bits: <strong id="pow-zeros" class="hl-num">0</strong></span>
+      </div>
+      <div id="pow-grid" class="nib-grid"></div>
+
+      <div class="mine-row">
+        <button class="cta-like" id="mine-btn" type="button">&#9935; Mine (try nonces until it works)</button>
+        <div class="info-item"><span class="k">Attempts</span><span class="v" id="mine-attempts">0</span></div>
+        <div class="info-item"><span class="k">Speed</span><span class="v" id="mine-rate">&mdash;</span></div>
+        <div class="info-item"><span class="k">Expected</span><span class="v" id="mine-expected">&mdash;</span></div>
+      </div>
+      <div class="note-box">
+        <strong>Real numbers:</strong> this page hashes a few hundred thousand times per second. The
+        Bitcoin network as a whole performs hundreds of <em>quintillions</em> of hashes per second, and
+        its difficulty demands roughly 75&ndash;80 leading zero bits &mdash; that's why a real block hash,
+        written in hex, begins with a long run of zeros like <code>00000000000000000002a7c4&hellip;</code>.
+        (Bitcoin also hashes twice, SHA-256 of SHA-256, and the block contains the <em>previous</em>
+        block's hash, chaining them together.)
+      </div>
+    </section>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Hashing Lab &middot; Intro CS &amp; Cybersecurity demo series</p>
+  </div>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="sha256.js"></script>
+<script src="hash.js"></script>
+<script src="mathhash.js"></script>
+<script src="pow.js"></script>
+</body>
+</html>
