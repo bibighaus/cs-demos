@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public-Key Crypto Lab</title>
+<meta name="description" content="Work through the math of RSA, send an encrypted message with someone's public key, and combine RSA with hashing to make and verify a digital signature.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="title-block">
+      <div class="tb-meta">
+        <span>CS-160 / Fig. 7</span>
+        <span>Sheet 1 of 3 &middot; Rev A</span>
+      </div>
+      <h1>Public-Key Crypto Lab</h1>
+      <p class="subtitle">Two keys instead of one: build an RSA key pair by hand, send a secret to
+        someone you've never met, and sign a message so nobody can fake it.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs wrap" role="tablist" aria-label="Public-key cryptography demos">
+  <button class="tab-btn active" data-tab="math" role="tab" aria-selected="true" aria-controls="tab-math">
+    RSA Math
+  </button>
+  <button class="tab-btn" data-tab="secret" role="tab" aria-selected="false" aria-controls="tab-secret">
+    Send a Secret
+  </button>
+  <button class="tab-btn" data-tab="sign" role="tab" aria-selected="false" aria-controls="tab-sign">
+    Digital Signatures <span class="badge">+ Hash</span>
+  </button>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= RSA MATH TAB ================= -->
+  <section id="tab-math" class="tab-panel" role="tabpanel" aria-labelledby="math">
+
+    <article class="intro card">
+      <h2>The problem with one key</h2>
+      <p>
+        A Caesar cipher (or a modern one like AES) is <strong>symmetric</strong>: the same key locks and
+        unlocks. That means the sender and receiver have to agree on a secret key <em>before</em> they
+        can talk privately. How do you do that with a website you've never visited, over a network anyone
+        can listen to?
+      </p>
+      <p>
+        <strong>Public-key cryptography</strong> uses <em>two</em> mathematically linked keys. The
+        <span class="ink-pub">public key</span> works like an open padlock: you can hand out copies to the
+        whole world, and anyone can snap one shut on a box. The <span class="ink-priv">private key</span> is
+        the only thing that opens it, and it never leaves your hands. The most famous recipe is
+        <strong>RSA</strong> (Rivest, Shamir, and Adleman, 1977). Build a key pair step by step below.
+      </p>
+    </article>
+
+    <section class="card step-card">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Pick two prime numbers, p and q</h3>
+        <p class="hint-text">A prime is divisible only by 1 and itself. Real RSA uses primes over 300 digits
+          long; we'll use small ones so you can check the arithmetic.</p>
+        <div class="pq-row">
+          <label class="pq-field"><span class="field-label">p</span>
+            <input id="p-input" class="text-input one-line num" type="number" min="2" value="61"></label>
+          <label class="pq-field"><span class="field-label">q</span>
+            <input id="q-input" class="text-input one-line num" type="number" min="2" value="53"></label>
+          <div class="btn-row pq-presets">
+            <button class="toggle-btn" data-pq="11,13" type="button">11, 13</button>
+            <button class="toggle-btn" data-pq="61,53" type="button">61, 53</button>
+            <button class="toggle-btn" data-pq="101,113" type="button">101, 113</button>
+            <button class="toggle-btn" id="pq-random" type="button">Random</button>
+          </div>
+        </div>
+        <div id="pq-error" class="error-line" hidden></div>
+      </div>
+    </section>
+
+    <div id="math-steps">
+      <section class="card step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Multiply them: n = p &times; q, and compute &phi;(n)</h3>
+          <div class="eq-list" id="n-phi"></div>
+          <p class="hint-text"><strong>n</strong> is part of the <span class="ink-pub">public key</span>. <strong>&phi;(n)</strong>
+            (&ldquo;phi of n&rdquo;) counts the numbers below n that share no factor with it; it's easy to
+            compute <em>if you know p and q</em>, and is kept <span class="ink-priv">secret</span>.</p>
+        </div>
+      </section>
+
+      <section class="card step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Choose the public exponent e</h3>
+          <p class="hint-text">Any e between 1 and &phi;(n) that shares no common factor with &phi;(n), meaning
+            gcd(e, &phi;(n)) = 1. Click one. (Real systems almost always use e = 65,537.)</p>
+          <div class="e-chips" id="e-chips"></div>
+          <div class="eq-list" id="e-check"></div>
+        </div>
+      </section>
+
+      <section class="card step-card">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Compute the private exponent d</h3>
+          <p class="hint-text">d is the number that &ldquo;undoes&rdquo; e: multiply them and divide by &phi;(n),
+            and the remainder is 1. In symbols, <code>e &times; d &equiv; 1 (mod &phi;(n))</code>. The
+            <strong>extended Euclidean algorithm</strong> finds it quickly; here are its steps.</p>
+          <div class="table-scroll"><table class="ascii-col euclid" id="euclid-table"></table></div>
+          <div class="eq-list" id="d-check"></div>
+        </div>
+      </section>
+
+      <section class="card step-card">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Your key pair</h3>
+          <div class="key-pair">
+            <div class="key-box pub">
+              <span class="kb-title">&#128275; Public key &mdash; share with everyone</span>
+              <div class="kb-vals" id="pub-key-vals"></div>
+            </div>
+            <div class="key-box priv">
+              <span class="kb-title">&#128273; Private key &mdash; never share</span>
+              <div class="kb-vals" id="priv-key-vals"></div>
+            </div>
+          </div>
+          <p class="hint-text">Once d is computed, p, q, and &phi;(n) are no longer needed &mdash; but they must
+            stay secret, because anyone who learns them can recompute d.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="field-label-row">
+          <h3 class="no-margin">Encrypt and decrypt a number</h3>
+        </div>
+        <div class="formula">
+          encrypt: <span class="ink-pub">c = m<sup>e</sup> mod n</span> &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+          decrypt: <span class="ink-priv">m = c<sup>d</sup> mod n</span>
+        </div>
+        <p class="hint-text">The message must be a number <strong>m</strong> smaller than n. Text becomes numbers using
+          character codes, so you can also type a single letter.</p>
+        <div class="m-row">
+          <label class="pq-field"><span class="field-label">Message m</span>
+            <input id="m-input" class="text-input one-line num" type="number" min="0" value="65"></label>
+          <label class="pq-field"><span class="field-label">&hellip;or a letter</span>
+            <input id="m-char" class="text-input one-line char" type="text" maxlength="2" value="A"></label>
+        </div>
+        <div id="m-error" class="error-line" hidden></div>
+
+        <div class="roundtrip" id="roundtrip"></div>
+
+        <div class="field-label-row trace-head">
+          <span class="field-label">How the computer does the power: square-and-multiply</span>
+          <div class="seg" role="group" aria-label="Show steps for" id="trace-seg">
+            <button class="seg-btn active" data-trace="enc" type="button" aria-pressed="true">Encrypt</button>
+            <button class="seg-btn" data-trace="dec" type="button" aria-pressed="false">Decrypt</button>
+          </div>
+        </div>
+        <p class="hint-text" id="trace-intro"></p>
+        <div class="table-scroll"><table class="ascii-col trace" id="trace-table"></table></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <ul class="takeaways tight">
+        <li><strong>Why it works:</strong> because e &times; d leaves remainder 1 when divided by &phi;(n),
+          raising to the e-th power and then the d-th power always brings you back to m (this follows from
+          <em>Euler's theorem</em>). The two exponents undo each other, just like a lock and its key.</li>
+        <li><strong>Why it's secure:</strong> everyone knows n and e. To find d you need &phi;(n), and to get
+          &phi;(n) you need p and q, which means <em>factoring</em> n. Multiplying two primes is instant;
+          splitting n back into them is believed to be extremely hard once n has hundreds of digits.</li>
+        <li><strong>Why it's fast:</strong> square-and-multiply needs only about one step per <em>bit</em> of
+          the exponent, and taking <code>mod n</code> after each step keeps the numbers small.</li>
+      </ul>
+    </section>
+
+  </section>
+
+  <!-- ================= SEND A SECRET TAB ================= -->
+  <section id="tab-secret" class="tab-panel" role="tabpanel" aria-labelledby="secret" hidden>
+
+    <article class="intro card">
+      <h2>Sending a secret to someone you've never met</h2>
+      <p>
+        <strong>Alice</strong> wants to send <strong>Bob</strong> a private message. They have never met
+        and share no secret. Worse, <strong>Eve</strong> the eavesdropper can read <em>everything</em>
+        that crosses the network. Public-key crypto solves it in four steps:
+      </p>
+      <ol class="steps-overview">
+        <li><strong>Bob</strong> generates a key pair and keeps the <span class="ink-priv">private key</span> to himself.</li>
+        <li>Bob <strong>publishes</strong> his <span class="ink-pub">public key</span> &mdash; Eve can see it too, and that's fine.</li>
+        <li><strong>Alice</strong> encrypts her message with <em>Bob's</em> <span class="ink-pub">public key</span> and sends it.</li>
+        <li>Only Bob's <span class="ink-priv">private key</span> can decrypt it. Not even Alice can undo it.</li>
+      </ol>
+    </article>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">&#9312; Bob's key pair</span>
+        <div class="btn-row">
+          <div class="seg" role="group" aria-label="Prime size" id="secret-size">
+            <button class="seg-btn" data-bits="8" type="button" aria-pressed="false">8-bit primes</button>
+            <button class="seg-btn active" data-bits="16" type="button" aria-pressed="true">16-bit</button>
+            <button class="seg-btn" data-bits="26" type="button" aria-pressed="false">26-bit</button>
+          </div>
+          <button class="toggle-btn" id="bob-new-keys" type="button">New keys</button>
+        </div>
+      </div>
+      <div class="key-pair">
+        <div class="key-box pub">
+          <span class="kb-title">&#9313; Bob's public key &mdash; published for anyone</span>
+          <div class="kb-vals" id="bob-pub"></div>
+        </div>
+        <div class="key-box priv">
+          <span class="kb-title">&#128273; Bob's private key &mdash; stays on Bob's computer</span>
+          <div class="kb-vals" id="bob-priv"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flow">
+      <section class="card flow-col alice">
+        <div class="who"><span class="avatar">A</span> Alice &middot; sender</div>
+        <label for="secret-input" class="field-label">&#9314; Her message</label>
+        <textarea id="secret-input" class="text-input" rows="3" spellcheck="false">Meet me at noon</textarea>
+        <p class="hint-text small">Each byte (character code) m is encrypted with Bob's
+          <span class="ink-pub">public key</span>: <code>c = m<sup>e</sup> mod n</code>.</p>
+        <div class="byte-view" id="alice-bytes"></div>
+      </section>
+
+      <div class="flow-arrow" aria-hidden="true">&rarr;</div>
+
+      <section class="card flow-col wire">
+        <div class="who"><span class="avatar eve">E</span> The network &middot; Eve sees this</div>
+        <span class="field-label">Ciphertext</span>
+        <div class="cipher-chips" id="cipher-chips"></div>
+        <div class="eve-tools">
+          <button class="toggle-btn" id="eve-public" type="button">Eve: decrypt with the public key?</button>
+          <button class="toggle-btn" id="eve-factor" type="button">Eve: factor n</button>
+        </div>
+        <div class="eve-out" id="eve-out" aria-live="polite"></div>
+      </section>
+
+      <div class="flow-arrow" aria-hidden="true">&rarr;</div>
+
+      <section class="card flow-col bob">
+        <div class="who"><span class="avatar bob">B</span> Bob &middot; receiver</div>
+        <span class="field-label">&#9315; Decrypted with his private key</span>
+        <p class="hint-text small"><code>m = c<sup>d</sup> mod n</code></p>
+        <div class="byte-view" id="bob-bytes"></div>
+        <div class="bob-text" id="bob-text"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <ul class="takeaways tight">
+        <li><strong>Encrypt with the receiver's public key.</strong> Alice needed nothing secret from Bob, and
+          Eve learned nothing useful from seeing the public key.</li>
+        <li><strong>Hover a byte</strong> and look closely: identical letters encrypt to identical numbers.
+          That's the same weakness the Caesar cipher had, so this <em>textbook</em> RSA could be broken
+          with frequency analysis. Real RSA adds random <strong>padding</strong> (OAEP) so the same message
+          encrypts differently every time.</li>
+        <li><strong>In practice</strong> RSA is slow, so it's only used to send a short random
+          <em>symmetric</em> key (for AES); the rest of the conversation uses that key. HTTPS works this way.</li>
+        <li><strong>Key size is everything.</strong> Have Eve factor n at each size. A real 2048-bit n has 617
+          decimal digits; the best known methods would need far longer than the age of the universe on today's
+          computers.</li>
+      </ul>
+    </section>
+
+  </section>
+
+  <!-- ================= DIGITAL SIGNATURES TAB ================= -->
+  <section id="tab-sign" class="tab-panel" role="tabpanel" aria-labelledby="sign" hidden>
+
+    <article class="intro card">
+      <h2>Proving who wrote it: hash + private key</h2>
+      <p>
+        Encryption keeps a message <em>secret</em>. But how does Bob know a message really came from Alice,
+        and that nobody changed it along the way? Run RSA <strong>backwards</strong>: Alice does something only
+        her <span class="ink-priv">private key</span> can do, and anyone can check it with her
+        <span class="ink-pub">public key</span>.
+      </p>
+      <p>
+        Alice doesn't sign the whole message. RSA can only handle a number smaller than n, and is slow. She
+        signs its <strong>hash</strong> instead (the fixed-size fingerprint from the Hashing Lab). Since
+        changing even one character changes the hash completely, signing the hash is as good as signing the
+        message.
+      </p>
+    </article>
+
+    <section class="card">
+      <div class="field-label-row">
+        <span class="field-label">Alice's key pair</span>
+        <button class="toggle-btn" id="alice-new-keys" type="button">New keys</button>
+      </div>
+      <div class="key-pair">
+        <div class="key-box pub">
+          <span class="kb-title">&#128275; Alice's public key &mdash; Bob (and everyone) has it</span>
+          <div class="kb-vals" id="alice-pub"></div>
+        </div>
+        <div class="key-box priv">
+          <span class="kb-title">&#128273; Alice's private key &mdash; only Alice has it</span>
+          <div class="kb-vals" id="alice-priv"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pipe">
+      <div class="who"><span class="avatar">A</span> Alice signs</div>
+
+      <div class="pipe-step">
+        <span class="pipe-n">1</span>
+        <div class="pipe-body">
+          <label for="sign-input" class="field-label">Write the message</label>
+          <textarea id="sign-input" class="text-input" rows="2" spellcheck="false">I, Alice, owe Bob $10.</textarea>
+        </div>
+      </div>
+
+      <div class="pipe-step">
+        <span class="pipe-n">2</span>
+        <div class="pipe-body">
+          <span class="field-label">Hash it with SHA-256</span>
+          <div class="hash-hex" id="sign-hash-hex"></div>
+          <p class="hint-text small" id="trunc-note"></p>
+          <div class="bits-strip" id="sign-hash-bits"></div>
+          <div class="eq-list" id="sign-h"></div>
+        </div>
+      </div>
+
+      <div class="pipe-step">
+        <span class="pipe-n">3</span>
+        <div class="pipe-body">
+          <span class="field-label">Sign the hash with her <span class="ink-priv">private key</span></span>
+          <div class="eq-list" id="sign-s"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pipe transit">
+      <div class="field-label-row">
+        <div class="who"><span class="avatar eve">M</span> In transit &middot; Mallory can change things</div>
+        <div class="btn-row">
+          <button class="toggle-btn" id="tamper-msg" type="button">Change the amount</button>
+          <button class="toggle-btn" id="tamper-sig" type="button">Forge a signature</button>
+          <button class="toggle-btn" id="resend" type="button">Resend original</button>
+        </div>
+      </div>
+      <p class="hint-text small">Alice sends the message <em>and</em> the signature. You can edit either one
+        here, as an attacker would.</p>
+      <div class="transit-grid">
+        <label class="field-label" for="rx-msg">Message</label>
+        <textarea id="rx-msg" class="text-input" rows="2" spellcheck="false"></textarea>
+        <label class="field-label" for="rx-sig">Signature s</label>
+        <input id="rx-sig" class="text-input one-line" type="text" spellcheck="false">
+      </div>
+      <div id="tamper-flag" class="tamper-flag" hidden></div>
+    </section>
+
+    <section class="card pipe">
+      <div class="who"><span class="avatar bob">B</span> Bob verifies</div>
+      <div class="verify-grid">
+        <div class="vg-col">
+          <span class="field-label">A &middot; Hash the message he received</span>
+          <div class="hash-hex small" id="rx-hash-hex"></div>
+          <div class="eq-list" id="rx-h"></div>
+        </div>
+        <div class="vg-col">
+          <span class="field-label">B &middot; Unlock the signature with Alice's <span class="ink-pub">public key</span></span>
+          <div class="eq-list" id="rx-v"></div>
+        </div>
+      </div>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <h3>Encryption vs. signatures &mdash; same math, opposite keys</h3>
+      <div class="table-scroll">
+        <table class="ascii-col compare-table">
+          <thead><tr><th></th><th>Sending a secret</th><th>Digital signature</th></tr></thead>
+          <tbody>
+            <tr><td>Goal</td><td>Only the receiver can <strong>read</strong> it (confidentiality)</td>
+              <td>Prove <strong>who</strong> wrote it and that it <strong>wasn't changed</strong> (authenticity &amp; integrity)</td></tr>
+            <tr><td>Sender uses</td><td>the <em>receiver's</em> <span class="ink-pub">public key</span></td>
+              <td>the <em>sender's own</em> <span class="ink-priv">private key</span></td></tr>
+            <tr><td>Receiver uses</td><td>their own <span class="ink-priv">private key</span></td>
+              <td>the <em>sender's</em> <span class="ink-pub">public key</span></td></tr>
+            <tr><td>Who can do the last step?</td><td>Only the receiver</td><td>Anyone at all</td></tr>
+            <tr><td>Is the message hidden?</td><td>Yes</td><td>No &mdash; signed messages can be public</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="takeaways">
+        <li><strong>Non-repudiation:</strong> only Alice's private key could have made a valid signature, so
+          she can't later claim she didn't sign the IOU.</li>
+        <li><strong>Hash + signature are a team:</strong> the hash catches <em>any</em> change to the message;
+          the private key ties that hash to Alice.</li>
+        <li><strong>This is how cryptocurrency works.</strong> A Bitcoin &ldquo;wallet&rdquo; is really a private
+          key. Every transaction (&ldquo;send 0.1 BTC to &hellip;&rdquo;) is hashed and signed with it, and every
+          node on the network verifies the signature with the matching public key before accepting it.
+          (Bitcoin uses elliptic-curve signatures rather than RSA, but the idea is the same.)</li>
+        <li><strong>Toy shortcuts:</strong> our n is tiny, so we sign only the first bits of the hash. Real
+          systems use 2048-bit RSA with padding (RSA-PSS) or elliptic curves and sign the full hash.</li>
+      </ul>
+    </section>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Public-Key Crypto Lab &middot; Intro CS &amp; Cybersecurity demo series</p>
+  </div>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="../hashing/sha256.js"></script>
+<script src="rsa.js"></script>
+<script src="rsamath.js"></script>
+<script src="secret.js"></script>
+<script src="signature.js"></script>
+</body>
+</html>
