@@ -66,6 +66,24 @@ Pages is enabled (see below).
     ([`hashing/sha256.js`](hashing/sha256.js)) so it works offline and
     from `file://`.
 
+- [`public-key/`](public-key/) &mdash; **Public-Key Crypto Lab**, in three tabs:
+  - **RSA Math** &mdash; pick primes p and q and build a key pair step by step:
+    n and &phi;(n), choosing e (gcd check), finding d with a traced extended
+    Euclidean algorithm, then encrypting/decrypting a number with a
+    square-and-multiply table driven by the exponent's binary digits.
+  - **Send a Secret** &mdash; Alice encrypts to Bob's public key while Eve
+    watches the wire. Eve can try the public key (fails) or factor n (works
+    on toy keys, with an estimate for real 2048-bit keys). Hovering shows
+    that textbook RSA maps identical letters to identical ciphertext, which
+    motivates padding.
+  - **Digital Signatures** &mdash; SHA-256 the message, sign the hash with
+    Alice's private key, and let Bob verify it with her public key. Students
+    can tamper with the message or forge a signature in transit and watch
+    verification fail. Ends with an encryption-vs-signature comparison and the
+    link to cryptocurrency wallets. Reuses
+    [`hashing/sha256.js`](hashing/sha256.js); RSA math uses BigInt in
+    [`public-key/rsa.js`](public-key/rsa.js).
+
 ## Visual identity: "Blueprint"
 
 Every demo shares one look &mdash; a dark, technical-drawing aesthetic
