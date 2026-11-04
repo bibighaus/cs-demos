@@ -50,6 +50,22 @@ Pages is enabled (see below).
     challenge passages, or students can crack their own message from the
     first tab.
 
+- [`hashing/`](hashing/) &mdash; **Hashing Lab**, in three tabs:
+  - **Hash It** &mdash; type text and see its SHA-256 hash live, both as 64 hex
+    digits and as all 256 bits (each hex digit hover-linked to its 4 bits),
+    plus an avalanche test that marks every bit flipped by a one-character
+    change.
+  - **Math Hashes** &mdash; three hash recipes built from basic arithmetic
+    (sum of character codes, a polynomial/Java-`hashCode` rolling hash, and
+    FNV-1a multiply&ndash;XOR), traced step by step, with the result shown in
+    binary (`mod 2^k` = keep the last k bits) and a hash-table bucket view
+    showing collisions and the pigeonhole principle.
+  - **Proof of Work** &mdash; a toy Bitcoin-style miner: pick a difficulty in
+    leading zero bits and search nonces until the block's binary hash meets
+    the target. SHA-256 is implemented in plain JS
+    ([`hashing/sha256.js`](hashing/sha256.js)) so it works offline and
+    from `file://`.
+
 ## Visual identity: "Blueprint"
 
 Every demo shares one look &mdash; a dark, technical-drawing aesthetic
